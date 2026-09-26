@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADOFAI 체력단련실 Beta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom glow utilities */
+    .glow-cyan {
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.45);
+    }
+    .glow-yellow {
+      box-shadow: 0 0 25px rgba(234, 179, 8, 0.45);
+    }
+    .glow-fire {
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+    .glow-ice {
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- Top Navigation Bar -->
+  <header class="w-full bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-3 px-4 sm:px-6 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-rose-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <span class="text-sm font-black text-white">⚡</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="siteTitleText" class="text-sm sm:text-base font-black tracking-tight text-white">ADOFAI 체력단련실</h1>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-extrabold uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Beta</span>
+          </div>
+          <p class="text-[10px] text-slate-400 hidden sm:block">A Dance of Fire and Ice • 180° Stamina Laboratory</p>
+        </div>
+      </div>
+
+      <!-- User Profile & Action Tools -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Player Name Input -->
+        <div class="flex items-center gap-1.5 bg-slate-950/70 border border-white/10 rounded-xl px-2.5 py-1.5">
+          <span class="text-xs text-slate-400">👤</span>
+          <input id="inputUsername" type="text" maxlength="15" value="Player" 
+            class="bg-transparent border-none text-xs font-bold text-cyan-300 w-20 sm:w-28 focus:outline-none placeholder-slate-600" 
+            placeholder="플레이어명">
+        </div>
+
+        <!-- Sync Latency Button -->
+        <button id="btnCalibrateToggle" type="button" 
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-semibold transition active:scale-95 shadow">
+          <span>🎧</span>
+          <span class="hidden sm:inline">싱크 보정</span>
+        </button>
+
+        <!-- Settings Button -->
+        <button id="btnSettingsToggle" type="button" 
+          class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-semibold transition active:scale-95 shadow flex items-center gap-1">
+          <span>⚙️</span>
+          <span class="hidden sm:inline">설정</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Stage & Game Area -->
+  <main class="max-w-6xl w-full mx-auto p-3 sm:p-6 flex-1 flex flex-col gap-4">
+
+    <!-- Canvas Simulation & Visual Feedback Container -->
+    <div class="relative w-full rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+      
+      <!-- Top HUD Stats Strip -->
+      <div class="flex items-center justify-between p-3 sm:p-4 border-b border-white/5 bg-slate-950/60 backdrop-blur z-20 text-xs font-mono">
+        <div class="flex items-center gap-4 sm:gap-6">
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">스트림 유지시간</div>
+            <div id="streakTimer" class="text-lg sm:text-2xl font-black text-cyan-400 tabular-nums">0.000s</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">완주 타일</div>
+            <div id="currentTileVal" class="text-lg sm:text-2xl font-black text-white tabular-nums">0</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">절대정확도</div>
+            <div id="accuracyVal" class="text-lg sm:text-2xl font-black text-yellow-400 tabular-nums">100.0%</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-5 text-right">
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">최고 기록</div>
+            <div id="bestStreak" class="text-sm sm:text-base font-bold text-slate-300 tabular-nums">0.000s</div>
+          </div>
+          <!-- Active Key Indicator -->
+          <div class="hidden sm:flex items-center gap-1.5 bg-slate-900 border border-white/10 p-1.5 rounded-xl">
+            <span class="text-[10px] text-slate-400 font-semibold px-1">키</span>
+            <span id="hudKeyPrimary" class="px-2 py-0.5 rounded bg-slate-800 text-yellow-400 font-black text-xs border border-white/5">F</span>
+            <span id="hudKeySecondary" class="px-2 py-0.5 rounded bg-slate-800 text-yellow-400 font-black text-xs border border-white/5">J</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Area (ADOFAI Straight Track & Dual Planets) -->
+      <div class="relative w-full h-[240px] sm:h-[300px] flex items-center justify-center bg-[#070b14] overflow-hidden cursor-pointer" id="canvasContainer">
+        <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+        <!-- Countdown Overlay -->
+        <div id="countdownOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-30 hidden">
+          <div id="countdownText" class="text-7xl sm:text-8xl font-black font-mono tracking-wider text-cyan-400 drop-shadow-[0_0_35px_rgba(6,182,212,0.8)] scale-110 transition-transform">
+            3
+          </div>
+          <div id="countdownSub" class="text-xs sm:text-sm font-mono text-slate-400 mt-2 font-semibold tracking-wide">
+            225 BPM (900 Tile BPM)
+          </div>
+        </div>
+
+        <!-- Center Judgement Pop Banner -->
+        <div class="absolute bottom-5 inset-x-0 flex justify-center pointer-events-none z-20">
+          <div id="judgementBanner" class="text-base sm:text-xl font-black font-mono tracking-widest text-slate-400 drop-shadow-md">
+            SPACE 또는 시작 버튼을 누르세요
+          </div>
+        </div>
+      </div>
+
+      <!-- Judgement Bar with Recent 16-Hit Ghosting -->
+      <div class="w-full bg-slate-950 p-2.5 sm:p-3 border-t border-white/5 flex flex-col items-center justify-center gap-1.5 z-20">
+        <div class="flex items-center justify-between w-full max-w-xl text-[10px] font-mono text-slate-500 font-semibold px-2">
+          <span>-50ms (너무빠름)</span>
+          <span class="text-cyan-400 font-bold">-25ms (빠름)</span>
+          <span class="text-emerald-400 font-bold">0ms (정확)</span>
+          <span class="text-yellow-400 font-bold">+25ms (느림)</span>
+          <span>+50ms (느림!!)</span>
+        </div>
+
+        <div class="relative w-full max-w-xl h-6 bg-slate-900 rounded-lg border border-white/10 overflow-hidden flex items-center" id="judgementBar">
+          <!-- Background Zones -->
+          <div class="absolute inset-y-0 left-0 w-full flex">
+            <!-- Out of bounds Left -->
+            <div class="h-full bg-orange-500/10" style="width: 10%;"></div>
+            <!-- Early! Zone (-40 to -30) -->
+            <div class="h-full bg-amber-500/15" style="width: 10%;"></div>
+            <!-- EPerfect Zone (-30 to -25) -->
+            <div class="h-full bg-sky-500/20" style="width: 5%;"></div>
+            <!-- Perfect Zone (-25 to +25) -->
+            <div class="h-full bg-emerald-500/25 border-x border-emerald-500/40" style="width: 50%;"></div>
+            <!-- LPerfect Zone (+25 to +30) -->
+            <div class="h-full bg-sky-500/20" style="width: 5%;"></div>
+            <!-- Late! Zone (+30 to +40) -->
+            <div class="h-full bg-amber-500/15" style="width: 10%;"></div>
+            <!-- Death Late!! Zone (>+40) -->
+            <div class="h-full bg-rose-500/20" style="width: 10%;"></div>
+          </div>
+
+          <!-- Center Reference Line -->
+          <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-emerald-400/80 -translate-x-1/2 shadow-[0_0_8px_#10b981]"></div>
+
+          <!-- Dynamic Ghost Markers Container -->
+          <div id="ghostMarkersContainer" class="absolute inset-0 pointer-events-none"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Control Dashboard: BPM Slider & Mode Selector (Rock-Solid Fixed Widths) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      
+      <!-- Primary Action & Division Selector (4 Cols) -->
+      <div class="lg:col-span-4 bg-slate-900/70 border border-white/10 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-xl backdrop-blur">
+        
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">스트림 부문 선택</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="tab8Beat" type="button" 
+              class="py-2.5 px-3 rounded-xl font-bold text-xs transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/5">
+              8비트 부문 (기본×2)
+            </button>
+            <button id="tab16Beat" type="button" 
+              class="py-2.5 px-3 rounded-xl font-bold text-xs transition active:scale-95 bg-yellow-500 text-slate-950 font-extrabold shadow-lg shadow-yellow-500/25">
+              16비트 부문 (기본×4)
+            </button>
+          </div>
+        </div>
+
+        <!-- Big Start / Stop Action Button -->
+        <button id="btnAction" type="button" 
+          class="w-full py-4 rounded-xl font-black text-sm tracking-wider uppercase transition-all duration-150 transform active:scale-95 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-xl shadow-cyan-500/25 flex items-center justify-center gap-2">
+          <span id="actionIcon">▶</span>
+          <span id="actionText">시작 (Start)</span>
+        </button>
+
+      </div>
+
+      <!-- BPM Slider & Fixed Layout Parameter Box (8 Cols) -->
+      <div class="lg:col-span-8 bg-slate-900/70 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-xl backdrop-blur">
+        
+        <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-3">
+          <div>
+            <span class="text-xs font-bold text-slate-300">곡 기본 템포 (Base Song BPM)</span>
+            <span class="text-[10px] text-slate-500 block">권장 범위: 160 ~ 400 BPM</span>
+          </div>
+
+          <!-- Fixed-Width Number Display Boxes (Zero Layout Shift) -->
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="w-[88px] shrink-0 text-right bg-slate-950 px-2.5 py-1 rounded-lg border border-white/10">
+              <span id="bpmDisplay" class="font-mono font-black text-cyan-400 text-base tabular-nums">225</span>
+              <span class="text-[10px] text-slate-400 font-bold ml-0.5">BPM</span>
+            </div>
+            <div class="w-[96px] shrink-0 text-right bg-slate-950 px-2.5 py-1 rounded-lg border border-white/10">
+              <span id="tileBpmDisplay" class="font-mono font-black text-yellow-400 text-base tabular-nums">900</span>
+              <span class="text-[10px] text-slate-400 font-bold ml-0.5">tBPM</span>
+            </div>
+            <div class="w-[80px] shrink-0 text-right bg-slate-950 px-2 py-1 rounded-lg border border-white/10 hidden sm:block">
+              <span id="tileMsDisplay" class="font-mono font-bold text-slate-300 text-xs tabular-nums">66.7</span>
+              <span class="text-[9px] text-slate-500">ms</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider Bar -->
+        <div class="space-y-1.5">
+          <input id="bpmSlider" type="range" min="160" max="400" step="1" value="225" 
+            class="w-full h-2.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-white/10">
+          <div class="flex justify-between text-[10px] font-mono text-slate-500">
+            <span>160 BPM</span>
+            <span>225 BPM (표준 900 타일)</span>
+            <span>400 BPM</span>
+          </div>
+        </div>
+
+        <!-- Quick Summary Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-400 font-mono">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>판정 규격: <strong class="text-white">±25ms 정확</strong> / <strong class="text-amber-400">±40ms 빠름!느림!</strong></span>
+          </div>
+          <div>사망 조건: <span class="text-rose-400 font-semibold">느림!! 즉사</span> 또는 <span class="text-orange-400 font-semibold">너무빠름 3회 누적</span></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Leaderboard / Ranking Section -->
+    <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur space-y-4">
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🏆</span>
+          <h2 class="font-bold text-sm text-white">BPM별 스트림 유지시간 랭킹</h2>
+          <span class="text-[10px] text-slate-400">(로컬 저장 기록)</span>
+        </div>
+
+        <!-- Division Switcher & Search Bar -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <!-- 8B vs 16B View Toggle -->
+          <div class="flex rounded-xl bg-slate-950 p-1 border border-white/10 text-xs shrink-0">
+            <button id="rankTab8B" type="button" class="py-1 px-2.5 rounded-lg text-slate-400 font-bold transition">8비트</button>
+            <button id="rankTab16B" type="button" class="py-1 px-2.5 rounded-lg bg-yellow-500 text-slate-950 font-bold shadow transition">16비트</button>
+          </div>
+
+          <!-- BPM Search Input -->
+          <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-xl border border-white/10 w-full sm:w-40">
+            <span class="text-xs text-slate-500">🔍</span>
+            <input id="rankFilterBpm" type="number" placeholder="BPM 검색" 
+              class="w-full bg-transparent border-none text-xs font-mono text-cyan-300 focus:outline-none placeholder-slate-600">
+          </div>
+          <button id="btnRankClearFilter" type="button" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-xs font-semibold">초기화</button>
+        </div>
+      </div>
+
+      <!-- Score Records List Container -->
+      <div id="scoreList" class="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+        <!-- Records injected dynamically via JS -->
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-slate-500">
+        <span id="rankThresholdHint">최소 64타일 이상 완주 시 랭킹 자동 등록</span>
+        <button id="btnClearScores" type="button" class="text-rose-400 hover:text-rose-300 underline font-semibold">기록 초기화</button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Calibration Modal -->
+  <div id="calibrationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-slate-900 border border-white/15 rounded-2xl shadow-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🎧</span>
+          <h3 class="font-bold text-sm text-white">오디오 및 입력 싱크 수동 보정</h3>
+        </div>
+        <button id="btnCloseCalib" type="button" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          키보드 하드웨어 응답 지연이나 모니터 디스플레이 딜레이를 상쇄하기 위한 오프셋(ms)을 수동 설정합니다.
+        </p>
+
+        <!-- Current Offset Value Display -->
+        <div class="text-center p-3 rounded-xl bg-slate-950 border border-white/10">
+          <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">현재 오프셋</div>
+          <div id="calibValDisplay" class="text-3xl font-black font-mono text-cyan-400 my-1 tabular-nums">0 ms</div>
+          <div class="text-[10px] text-slate-500">음수: 타격이 늦게 인식될 때 • 양수: 타격이 일찍 인식될 때</div>
+        </div>
+
+        <!-- Slider Bar -->
+        <div class="space-y-1">
+          <input id="calibSlider" type="range" min="-150" max="150" step="1" value="0" 
+            class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-white/10">
+          <div class="flex justify-between text-[10px] font-mono text-slate-500">
+            <span>-150ms</span>
+            <span>0ms</span>
+            <span>+150ms</span>
+          </div>
+        </div>
+
+        <!-- Micro-Adjustment Buttons -->
+        <div class="grid grid-cols-5 gap-1.5 pt-1">
+          <button id="btnCalibMinus5" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300">-5ms</button>
+          <button id="btnCalibMinus1" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300">-1ms</button>
+          <button id="btnCalibReset" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-cyan-400">0</button>
+          <button id="btnCalibPlus1" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300">+1ms</button>
+          <button id="btnCalibPlus5" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300">+5ms</button>
+        </div>
+      </div>
+
+      <button id="btnSaveCalib" type="button" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg transition">
+        확인 및 저장
+      </button>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-slate-900 border border-white/15 rounded-2xl shadow-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⚙️</span>
+          <h3 class="font-bold text-sm text-white">환경 설정 (Settings)</h3>
+        </div>
+        <button id="btnCloseSettings" type="button" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+        
+        <!-- Language Switch -->
+        <div class="space-y-1.5">
+          <label class="text-xs text-slate-300 font-semibold">언어 (Language)</label>
+          <div class="flex gap-2">
+            <button id="btnLangKo" type="button" class="flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition">🇰🇷 한국어</button>
+            <button id="btnLangEn" type="button" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition">🇺🇸 English</button>
+          </div>
+        </div>
+
+        <!-- Key Bindings -->
+        <div class="space-y-2">
+          <label class="text-xs text-slate-300 font-semibold">조작 키 설정 (버튼 클릭 후 원하는 키 입력)</label>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+              <div class="text-[10px] text-slate-400 font-semibold mb-1">8비트 단일키</div>
+              <button id="btnBindKey8B" type="button" class="w-full py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-mono font-bold text-xs rounded-lg border border-white/10 transition">
+                <span id="bindKey8BVal">Space</span>
+              </button>
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+              <div class="text-[10px] text-slate-400 font-semibold mb-1">16비트 Key 1</div>
+              <button id="btnBindKey1" type="button" class="w-full py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-yellow-400 font-mono font-bold text-xs rounded-lg border border-white/10 transition">
+                <span id="bindKey1Val">F</span>
+              </button>
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+              <div class="text-[10px] text-slate-400 font-semibold mb-1">16비트 Key 2</div>
+              <button id="btnBindKey2" type="button" class="w-full py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-yellow-400 font-mono font-bold text-xs rounded-lg border border-white/10 transition">
+                <span id="bindKey2Val">J</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Tiles Goal -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <label class="text-slate-300 font-semibold">목표 완주 타일 수 (Target Goal)</label>
+            <span id="valTargetTiles" class="font-mono font-bold text-cyan-400">무제한 (Endless)</span>
+          </div>
+          <input id="sliderTargetTiles" type="range" min="0" max="2048" step="64" value="0" 
+            class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-white/10">
+          <div class="flex justify-between text-[10px] font-mono text-slate-500">
+            <span>0 (무제한)</span>
+            <span>512</span>
+            <span>1024</span>
+            <span>2048 타일</span>
+          </div>
+        </div>
+
+        <!-- Save Threshold -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <label class="text-slate-300 font-semibold">최소 기록 저장 타일 수</label>
+            <span id="valSaveThreshold" class="font-mono font-bold text-yellow-400">64</span>
+          </div>
+          <input id="sliderSaveThreshold" type="range" min="32" max="256" step="8" value="64" 
+            class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-yellow-400 border border-white/10">
+          <div class="flex justify-between text-[10px] font-mono text-slate-500">
+            <span>32 타일</span>
+            <span>64 (기본)</span>
+            <span>128</span>
+            <span>256 타일</span>
+          </div>
+        </div>
+
+      </div>
+
+      <button id="btnSaveSettings" type="button" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg transition">
+        설정 완료
+      </button>
+    </div>
+  </div>
+
+  <!-- Run Detailed Analysis Modal -->
+  <div id="analysisModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden">
+    <div class="w-full max-w-2xl bg-slate-900 border border-white/15 rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📊</span>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-white">스트림 타격 상세 분석</h3>
+            <p id="analysisSubtitle" class="text-[11px] text-slate-400">타일별 입력 밀리초(ms) 편차 분포 그래프</p>
+          </div>
+        </div>
+        <button id="btnCloseAnalysis" type="button" class="text-slate-400 hover:text-white text-xl p-1">✕</button>
+      </div>
+
+      <!-- Player Name Override Input -->
+      <div class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-white/10">
+        <span class="text-xs text-slate-400 shrink-0">플레이어 이름:</span>
+        <input id="analysisPlayerName" type="text" maxlength="15" 
+          class="bg-transparent border-none text-xs font-bold text-cyan-300 w-full focus:outline-none placeholder-slate-600">
+        <button id="btnApplyAnalysisName" type="button" class="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-lg shrink-0">이름 적용</button>
+      </div>
+
+      <!-- Summary Badges -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+          <div class="text-[10px] text-slate-400">유지 시간</div>
+          <div id="analysisDuration" class="font-mono font-bold text-cyan-400 text-base">0.000s</div>
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+          <div class="text-[10px] text-slate-400">완주 타일</div>
+          <div id="analysisTiles" class="font-mono font-bold text-white text-base">0</div>
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+          <div class="text-[10px] text-slate-400">절대 정확도</div>
+          <div id="analysisAccuracy" class="font-mono font-bold text-yellow-400 text-base">0.0%</div>
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
+          <div class="text-[10px] text-slate-400">스트림 BPM</div>
+          <div id="analysisBpm" class="font-mono font-bold text-emerald-400 text-base">900 tBPM</div>
+        </div>
+      </div>
+
+      <!-- Graph Container & Graph Mode Toggles -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-300 font-semibold">타일 오차 추이 그래프 (Tile vs Offset)</span>
+          <div class="flex gap-1 bg-slate-950 p-0.5 rounded-lg border border-white/10 text-[10px]">
+            <button id="btnGraphRaw" type="button" class="px-2 py-0.5 rounded bg-cyan-600 text-white font-bold">편차 (±ms)</button>
+            <button id="btnGraphAbs" type="button" class="px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white">절대값 (|ms|)</button>
+          </div>
+        </div>
+
+        <div class="w-full bg-[#070b14] rounded-xl border border-white/10 p-2 overflow-hidden flex items-center justify-center">
+          <canvas id="graphCanvas" class="w-full h-[180px] block"></canvas>
+        </div>
+      </div>
+
+      <!-- Detailed Judgement Counters (Separated as requested in Feedback 7 & 8) -->
+      <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5 text-center font-mono">
+        <div class="p-2 bg-slate-950 rounded-lg border border-emerald-500/20">
+          <div class="text-[9px] text-emerald-400 font-bold">정확</div>
+          <div id="cntAnalysisPerfect" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+        <div class="p-2 bg-slate-950 rounded-lg border border-sky-500/20">
+          <div class="text-[9px] text-sky-400 font-bold">빠름</div>
+          <div id="cntAnalysisEPerfect" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+        <div class="p-2 bg-slate-950 rounded-lg border border-sky-500/20">
+          <div class="text-[9px] text-sky-400 font-bold">느림</div>
+          <div id="cntAnalysisLPerfect" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+        <div class="p-2 bg-slate-950 rounded-lg border border-amber-500/20">
+          <div class="text-[9px] text-amber-400 font-bold">빠름!</div>
+          <div id="cntAnalysisEarly" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+        <div class="p-2 bg-slate-950 rounded-lg border border-amber-500/20">
+          <div class="text-[9px] text-amber-400 font-bold">느림!</div>
+          <div id="cntAnalysisLate" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+        <div class="p-2 bg-slate-950 rounded-lg border border-orange-500/20">
+          <div class="text-[9px] text-orange-400 font-bold">매우빠름</div>
+          <div id="cntAnalysisVEarly" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+        <div class="p-2 bg-slate-950 rounded-lg border border-rose-500/20 col-span-2 sm:col-span-1">
+          <div class="text-[9px] text-rose-400 font-bold">느림!! (사망)</div>
+          <div id="cntAnalysisLateMiss" class="text-xs font-black text-white mt-0.5">0</div>
+        </div>
+      </div>
+
+      <!-- Prominent Confirm & Continue Button (Required in Feedback 5) -->
+      <button id="btnConfirmContinue" type="button" 
+        class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-sm tracking-wide shadow-xl shadow-cyan-500/20 transition active:scale-98">
+        확인 및 계속 (Confirm & Continue)
+      </button>
+
+    </div>
+  </div>
+
+  <script>
+    // Internationalization dictionary
+    const I18N = {
+      ko: {
+        appTitle: 'ADOFAI 체력단련실 Beta',
+        startBtn: '시작 (Start)',
+        stopBtn: '중단 (Stop)',
+        readyCount: '준비!',
+        goCount: '시작!',
+        perfect: '정확',
+        eperfect: '빠름',
+        lperfect: '느림',
+        early: '빠름!',
+        late: '느림!',
+        veryEarly: '너무빠름',
+        lateMiss: '느림!!',
+        overloadFail: '과부하 (너무빠름 3회 누적)',
+        lateMissFail: '느림!! (박자 놓침)',
+        userStop: '사용자 중단',
+        goalClear: '🎉 목표 타일 완주 성공!',
+        clearRankConfirm: '저장된 모든 랭킹 데이터를 초기화하시겠습니까?'
+      },
+      en: {
+        appTitle: 'ADOFAI Stamina Lab Beta',
+        startBtn: 'Start Run',
+        stopBtn: 'Stop Run',
+        readyCount: 'READY!',
+        goCount: 'GO!',
+        perfect: 'Perfect',
+        eperfect: 'EPerfect',
+        lperfect: 'LPerfect',
+        early: 'Early!',
+        late: 'Late!',
+        veryEarly: 'Too Early',
+        lateMiss: 'Late!!',
+        overloadFail: 'Overload (3 Early!! on tile)',
+        lateMissFail: 'Late!! (Missed timing)',
+        userStop: 'Stopped by User',
+        goalClear: '🎉 Target Goal Cleared!',
+        clearRankConfirm: 'Clear all recorded score history?'
+      }
+    };
+
+    // State Variables
+    let currentLang = 'ko';
+    let username = 'Player';
+    let baseBPM = 225;
+    let streamDivision = '16beat'; // '8beat' (base * 2) or '16beat' (base * 4)
+    let tileBPM = 900;
+    let tileIntervalMs = (60 / tileBPM) * 1000;
+
+    let key8B = ' ';
+    let key1 = 'f';
+    let key2 = 'j';
+    let rebindingTarget = null;
+
+    let saveThreshold = 64;
+    let targetTilesGoal = 0; // 0 = endless
+    let calibrationOffset = 0; // ms
+
+    let isRunning = false;
+    let isCountingDown = false;
+    let countdownBeat = 0;
+    let countdownTimeouts = [];
+
+    let currentTileIndex = 0;
+    let runStartTime = 0;
+    let targetTileTime = 0;
+    let nextIndependentBeatTime = 0;
+    let currentStreakSeconds = 0;
+    let bestStreakSeconds = 0;
+
+    let activeEarlyCountOnTile = 0;
+    let hitHistory = [];
+    let recent16Hits = [];
+    let earlyMarkerOrbits = [];
+    let cometTrails = [];
+    let graphDisplayMode = 'deviation'; // 'deviation' or 'absolute'
+
+    let judgementCounts = {
+      perfect: 0,
+      eperfect: 0,
+      lperfect: 0,
+      early: 0,
+      late: 0,
+      veryEarly: 0,
+      lateMiss: 0,
+      total: 0
+    };
+
+    let rankViewDivision = '16beat';
+    let rankViewBpmFilter = null;
+
+    // Camera & Track Physics
+    const TILE_SPACING = 90;
+    const PLANET_RADIUS = 16;
+    let cameraX = 0;
+    let targetCameraX = 0;
+
+    const sound = {
+      ctx: null,
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      playKick(time) {
+        this.init();
+        if (!this.ctx) return;
+
+        const scheduledTime = time || this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(160, scheduledTime);
+        osc.frequency.exponentialRampToValueAtTime(32, scheduledTime + 0.07);
+
+        gain.gain.setValueAtTime(0.9, scheduledTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, scheduledTime + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(scheduledTime);
+        osc.stop(scheduledTime + 0.09);
+      },
+
+      playFail() {
+        this.init();
+        if (!this.ctx) return;
+
+        const t = this.ctx.currentTime;
+
+        // High glass shatter
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(880, t);
+        osc1.frequency.exponentialRampToValueAtTime(140, t + 0.28);
+        gain1.gain.setValueAtTime(0.7, t);
+        gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(t);
+        osc1.stop(t + 0.31);
+
+        // Low rumble crash
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'sawtooth';
+        osc2.frequency.setValueAtTime(90, t);
+        osc2.frequency.exponentialRampToValueAtTime(20, t + 0.45);
+        gain2.gain.setValueAtTime(0.8, t);
+        gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.48);
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start(t);
+        osc2.stop(t + 0.5);
+      },
+
+      playTick(pitch = 880, time = null) {
+        this.init();
+        if (!this.ctx) return;
+        const t = time || this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(pitch, t);
+        gain.gain.setValueAtTime(0.5, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.05);
+      },
+
+      playClear() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t + i * 0.1);
+          gain.gain.setValueAtTime(0.4, t + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + i * 0.1);
+          osc.stop(t + i * 0.1 + 0.26);
+        });
+      }
+    };
+
+    const addSafeListener = (idOrEl, event, handler, options) => {
+      const el = typeof idOrEl === 'string' ? document.getElementById(idOrEl) : idOrEl;
+      if (el) {
+        el.addEventListener(event, handler, options);
+      }
+    };
+
+    const isAnyModalOpen = () => {
+      const a = document.getElementById('analysisModal');
+      const s = document.getElementById('settingsModal');
+      const c = document.getElementById('calibrationModal');
+      return (a && !a.classList.contains('hidden')) ||
+             (s && !s.classList.contains('hidden')) ||
+             (c && !c.classList.contains('hidden'));
+    };
+
+    const setLanguage = (lang) => {
+      currentLang = lang === 'en' ? 'en' : 'ko';
+      try {
+        localStorage.setItem('adofai_v2_lang', currentLang);
+      } catch (e) {}
+
+      const btnKo = document.getElementById('btnLangKo');
+      const btnEn = document.getElementById('btnLangEn');
+      if (btnKo && btnEn) {
+        if (currentLang === 'ko') {
+          btnKo.className = 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition';
+          btnEn.className = 'flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition';
+        } else {
+          btnEn.className = 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition';
+          btnKo.className = 'flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition';
+        }
+      }
+
+      const txtTitle = document.getElementById('siteTitleText');
+      if (txtTitle) txtTitle.innerText = I18N[currentLang].appTitle;
+
+      const actTxt = document.getElementById('actionText');
+      if (actTxt && !isRunning && !isCountingDown) {
+        actTxt.innerText = I18N[currentLang].startBtn;
+      }
+    };
+
+    const updateBaseBPM = (val) => {
+      baseBPM = Math.max(160, Math.min(400, parseInt(val, 10) || 225));
+      const bpmSlider = document.getElementById('bpmSlider');
+      if (bpmSlider) bpmSlider.value = baseBPM;
+
+      const multiplier = streamDivision === '8beat' ? 2 : 4;
+      tileBPM = baseBPM * multiplier;
+      tileIntervalMs = (60 / tileBPM) * 1000;
+
+      const bpmDisplay = document.getElementById('bpmDisplay');
+      if (bpmDisplay) bpmDisplay.innerText = baseBPM;
+
+      const tileBpmDisplay = document.getElementById('tileBpmDisplay');
+      if (tileBpmDisplay) tileBpmDisplay.innerText = tileBPM;
+
+      const tileMsDisplay = document.getElementById('tileMsDisplay');
+      if (tileMsDisplay) tileMsDisplay.innerText = tileIntervalMs.toFixed(1);
+    };
+
+    const setDivisionMode = (mode) => {
+      streamDivision = mode === '8beat' ? '8beat' : '16beat';
+      const tab8 = document.getElementById('tab8Beat');
+      const tab16 = document.getElementById('tab16Beat');
+
+      if (tab8 && tab16) {
+        if (streamDivision === '8beat') {
+          tab8.className = 'py-2.5 px-3 rounded-xl font-extrabold text-xs transition active:scale-95 bg-cyan-600 text-white shadow-lg shadow-cyan-600/30';
+          tab16.className = 'py-2.5 px-3 rounded-xl font-bold text-xs transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/5';
+        } else {
+          tab16.className = 'py-2.5 px-3 rounded-xl font-extrabold text-xs transition active:scale-95 bg-yellow-500 text-slate-950 shadow-lg shadow-yellow-500/30';
+          tab8.className = 'py-2.5 px-3 rounded-xl font-bold text-xs transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/5';
+        }
+      }
+      updateBaseBPM(baseBPM);
+      updateKeysHUD();
+    };
+
+    const updateKeysHUD = () => {
+      const hudP = document.getElementById('hudKeyPrimary');
+      const hudS = document.getElementById('hudKeySecondary');
+
+      if (streamDivision === '8beat') {
+        if (hudP) hudP.innerText = key8B === ' ' ? 'SPACE' : key8B.toUpperCase();
+        if (hudS) hudS.innerText = '-';
+      } else {
+        if (hudP) hudP.innerText = key1.toUpperCase();
+        if (hudS) hudS.innerText = key2.toUpperCase();
+      }
+
+      const elBind8 = document.getElementById('bindKey8BVal');
+      const elBind1 = document.getElementById('bindKey1Val');
+      const elBind2 = document.getElementById('bindKey2Val');
+      if (elBind8) elBind8.innerText = key8B === ' ' ? 'Space' : key8B.toUpperCase();
+      if (elBind1) elBind1.innerText = key1.toUpperCase();
+      if (elBind2) elBind2.innerText = key2.toUpperCase();
+    };
+
+    const updateThreshold = (val) => {
+      saveThreshold = Math.max(32, Math.min(256, parseInt(val, 10) || 64));
+      const s = document.getElementById('sliderSaveThreshold');
+      const v = document.getElementById('valSaveThreshold');
+      if (s) s.value = saveThreshold;
+      if (v) v.innerText = saveThreshold;
+      const rh = document.getElementById('rankThresholdHint');
+      if (rh) rh.innerText = `최소 ${saveThreshold}타일 이상 완주 시 랭킹 자동 등록`;
+      try {
+        localStorage.setItem('adofai_v2_threshold', saveThreshold);
+      } catch (e) {}
+    };
+
+    const updateTargetTilesGoal = (val) => {
+      targetTilesGoal = Math.max(0, Math.min(2048, parseInt(val, 10) || 0));
+      const s = document.getElementById('sliderTargetTiles');
+      const v = document.getElementById('valTargetTiles');
+      if (s) s.value = targetTilesGoal;
+      if (v) v.innerText = targetTilesGoal === 0 ? '무제한 (Endless)' : `${targetTilesGoal} 타일`;
+      try {
+        localStorage.setItem('adofai_v2_target_tiles', targetTilesGoal);
+      } catch (e) {}
+    };
+
+    const setRankViewDivision = (div) => {
+      rankViewDivision = div === '8beat' ? '8beat' : '16beat';
+      const r8 = document.getElementById('rankTab8B');
+      const r16 = document.getElementById('rankTab16B');
+      if (r8 && r16) {
+        if (rankViewDivision === '8beat') {
+          r8.className = 'py-1 px-2.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow';
+          r16.className = 'py-1 px-2.5 rounded-lg text-slate-400 font-bold text-xs hover:text-white';
+        } else {
+          r16.className = 'py-1 px-2.5 rounded-lg bg-yellow-500 text-slate-950 font-bold text-xs shadow';
+          r8.className = 'py-1 px-2.5 rounded-lg text-slate-400 font-bold text-xs hover:text-white';
+        }
+      }
+      renderScoreBoard();
+    };
+
+    const loadSavedSettings = () => {
+      try {
+        const u = localStorage.getItem('adofai_v2_user');
+        if (u) {
+          username = u;
+          const inp = document.getElementById('inputUsername');
+          if (inp) inp.value = username;
+        }
+
+        const l = localStorage.getItem('adofai_v2_lang');
+        if (l) setLanguage(l);
+
+        const k8 = localStorage.getItem('adofai_v2_k8b');
+        if (k8) key8B = k8;
+
+        const k1 = localStorage.getItem('adofai_v2_k1');
+        if (k1) key1 = k1;
+
+        const k2 = localStorage.getItem('adofai_v2_k2');
+        if (k2) key2 = k2;
+
+        const th = localStorage.getItem('adofai_v2_threshold');
+        if (th) updateThreshold(th);
+
+        const tg = localStorage.getItem('adofai_v2_target_tiles');
+        if (tg) updateTargetTilesGoal(tg);
+
+        const cal = localStorage.getItem('adofai_v2_calib');
+        if (cal) {
+          calibrationOffset = parseInt(cal, 10) || 0;
+          const cSlider = document.getElementById('calibSlider');
+          const cDisplay = document.getElementById('calibValDisplay');
+          if (cSlider) cSlider.value = calibrationOffset;
+          if (cDisplay) cDisplay.innerText = `${calibrationOffset > 0 ? '+' : ''}${calibrationOffset} ms`;
+        }
+      } catch (e) {
+        console.warn('LocalStorage access warning:', e);
+      }
+
+      setDivisionMode(streamDivision);
+      updateKeysHUD();
+      renderScoreBoard();
+    };
+
+    const getStoredScores = () => {
+      try {
+        return JSON.parse(localStorage.getItem('adofai_v2_scores') || '[]');
+      } catch (e) {
+        return [];
+      }
+    };
+
+    const saveScoreRecord = (scoreData) => {
+      const list = getStoredScores();
+      list.push(scoreData);
+      try {
+        localStorage.setItem('adofai_v2_scores', JSON.stringify(list));
+      } catch (e) {}
+      renderScoreBoard();
+    };
+
+    const renderScoreBoard = () => {
+      const container = document.getElementById('scoreList');
+      if (!container) return;
+
+      let list = getStoredScores();
+      list = list.filter(item => (item.division || '16beat') === rankViewDivision);
+
+      if (rankViewBpmFilter !== null && !isNaN(rankViewBpmFilter)) {
+        list = list.filter(item => item.baseBpm === rankViewBpmFilter || item.tileBpm === rankViewBpmFilter);
+      }
+
+      list.sort((a, b) => (b.tiles || 0) - (a.tiles || 0) || (b.accuracy || 0) - (a.accuracy || 0));
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-500 text-xs">
+            기록된 랭킹 데이터가 없습니다. (최소 ${saveThreshold}타일 이상 완주 시 자동 저장)
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.slice(0, 50).map((row, idx) => {
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`;
+        return `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-white/5 hover:border-cyan-500/30 transition text-xs">
+            <div class="flex items-center gap-3">
+              <span class="w-6 font-bold text-center text-slate-400 font-mono">${medal}</span>
+              <div>
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  ${row.username || 'Player'}
+                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400 font-mono border border-white/5">
+                    ${row.baseBpm} BPM (${row.tileBpm}t)
+                  </span>
+                </div>
+                <div class="text-[10px] text-slate-400 font-mono">
+                  ${row.date || ''} • ${row.reason || ''}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-cyan-300 text-sm">
+                ${(row.duration || 0).toFixed(3)}s
+              </div>
+              <div class="text-[10px] font-mono text-slate-400">
+                ${row.tiles || 0}타일 • <span class="text-yellow-400 font-semibold">${(row.accuracy || 0).toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    const computeAbsoluteAccuracy = () => {
+      const { perfect, eperfect, lperfect, early, late, veryEarly } = judgementCounts;
+      const total = perfect + eperfect + lperfect + early + late + veryEarly;
+      if (total === 0) return 100.0;
+      const score = (perfect * 100) + ((eperfect + lperfect) * 75) + ((early + late) * 40) + (veryEarly * 20);
+      return Math.min(100, Math.max(0, score / total));
+    };
+
+    const triggerCountdown = () => {
+      sound.init();
+      if (isRunning || isCountingDown || isAnyModalOpen()) return;
+
+      isCountingDown = true;
+      countdownBeat = 0;
+      countdownTimeouts.forEach(t => clearTimeout(t));
+      countdownTimeouts = [];
+
+      const overlay = document.getElementById('countdownOverlay');
+      const txt = document.getElementById('countdownText');
+      const sub = document.getElementById('countdownSub');
+      if (overlay) overlay.classList.remove('hidden');
+
+      const actText = document.getElementById('actionText');
+      if (actText) actText.innerText = I18N[currentLang].stopBtn;
+
+      // 1 Beat = 4 stream tiles duration
+      const quarterMs = tileIntervalMs * 4;
+      const countSteps = ['3', '2', '1', I18N[currentLang].goCount];
+
+      countSteps.forEach((step, idx) => {
+        const timer = setTimeout(() => {
+          countdownBeat = idx + 1;
+          if (txt) {
+            txt.innerText = step;
+            txt.className = `text-6xl sm:text-7xl font-black font-mono tracking-wider drop-shadow-[0_0_25px_rgba(6,182,212,0.8)] scale-110 transition-transform ${
+              idx === 3 ? 'text-yellow-400' : 'text-cyan-400'
+            }`;
+          }
+          if (sub) {
+            sub.innerText = `${baseBPM} BPM (${tileBPM} Tile BPM)`;
+          }
+          sound.playTick(idx === 3 ? 1200 : 700);
+
+          if (idx === countSteps.length - 1) {
+            const launchTimer = setTimeout(() => {
+              if (overlay) overlay.classList.add('hidden');
+              isCountingDown = false;
+              startRun();
+            }, quarterMs);
+            countdownTimeouts.push(launchTimer);
+          }
+        }, idx * quarterMs);
+        countdownTimeouts.push(timer);
+      });
+    };
+
+    const startRun = () => {
+      isRunning = true;
+      currentTileIndex = 0;
+      activeEarlyCountOnTile = 0;
+      runStartTime = performance.now();
+      targetTileTime = runStartTime + tileIntervalMs;
+      nextIndependentBeatTime = targetTileTime;
+
+      currentStreakSeconds = 0;
+      hitHistory = [];
+      recent16Hits = [];
+      earlyMarkerOrbits = [];
+      cometTrails = [];
+
+      judgementCounts = {
+        perfect: 0,
+        eperfect: 0,
+        lperfect: 0,
+        early: 0,
+        late: 0,
+        veryEarly: 0,
+        lateMiss: 0,
+        total: 0
+      };
+
+      cameraX = 0;
+      targetCameraX = 0;
+
+      const banner = document.getElementById('judgementBanner');
+      if (banner) {
+        banner.innerText = 'START!';
+        banner.className = 'text-lg sm:text-xl font-black font-mono tracking-widest text-cyan-400 transition-all';
+      }
+
+      renderGhostJudgements();
+      sound.playKick();
+    };
+
+    const stopRun = (reason, isClear = false) => {
+      if (!isRunning && !isCountingDown) return;
+
+      isRunning = false;
+      isCountingDown = false;
+      countdownTimeouts.forEach(t => clearTimeout(t));
+      countdownTimeouts = [];
+
+      const overlay = document.getElementById('countdownOverlay');
+      if (overlay) overlay.classList.add('hidden');
+
+      const actText = document.getElementById('actionText');
+      if (actText) actText.innerText = I18N[currentLang].startBtn;
+
+      if (isClear) {
+        sound.playClear();
+      } else {
+        sound.playFail();
+      }
+
+      const totalAcc = computeAbsoluteAccuracy();
+      const runDuration = currentStreakSeconds;
+
+      // Update Best Streak
+      if (runDuration > bestStreakSeconds) {
+        bestStreakSeconds = runDuration;
+        const b = document.getElementById('bestStreak');
+        if (b) b.innerText = `${bestStreakSeconds.toFixed(3)}s`;
+      }
+
+      // Check Save Threshold
+      if (currentTileIndex >= saveThreshold || isClear) {
+        const record = {
+          username: username || 'Player',
+          date: new Date().toLocaleDateString(),
+          baseBpm: baseBPM,
+          tileBpm: tileBPM,
+          division: streamDivision,
+          duration: runDuration,
+          tiles: currentTileIndex,
+          accuracy: totalAcc,
+          reason: isClear ? I18N[currentLang].goalClear : reason,
+          history: hitHistory.slice(0, 600)
+        };
+        saveScoreRecord(record);
+        openAnalysisModal(record);
+      }
+    };
+
+    const handlePlayerHit = (keyName) => {
+      sound.init();
+      if (!isRunning) {
+        if (!isCountingDown && !isAnyModalOpen()) {
+          triggerCountdown();
+        }
+        return;
+      }
+
+      const now = performance.now();
+      const rawOffset = now - targetTileTime - calibrationOffset;
+
+      let judge = '';
+      let judgeColor = '#22c55e';
+      let advancesTile = false;
+
+      // 6th Feedback Official Judgement Windows
+      if (rawOffset < -40.0) {
+        // 너무빠름 (Early!!) - Does NOT advance tile, leaves orbit X mark
+        judge = I18N[currentLang].veryEarly;
+        judgeColor = '#f97316';
+        judgementCounts.veryEarly++;
+        activeEarlyCountOnTile++;
+
+        // Spawn orbit X mark
+        const pivotX = currentTileIndex * TILE_SPACING;
+        const orbitAngle = Math.PI - Math.min(Math.PI, Math.max(0, ((targetTileTime - now) / tileIntervalMs) * Math.PI));
+        earlyMarkerOrbits.push({
+          tile: currentTileIndex,
+          x: pivotX + Math.cos(orbitAngle) * TILE_SPACING,
+          y: Math.sin(orbitAngle) * TILE_SPACING,
+          alpha: 1.0
+        });
+
+        // Fail condition 2: 3 or more Early!! on the same tile -> Overload death
+        if (activeEarlyCountOnTile >= 3) {
+          judgementCounts.lateMiss++;
+          stopRun(I18N[currentLang].overloadFail);
+          return;
+        }
+      } else if (rawOffset > 40.0) {
+        // 느림!! (Late!!) - Fail condition 1: Immediate Death
+        judge = I18N[currentLang].lateMiss;
+        judgeColor = '#ef4444';
+        judgementCounts.lateMiss++;
+        stopRun(I18N[currentLang].lateMissFail);
+        return;
+      } else if (rawOffset >= -40.0 && rawOffset < -30.0) {
+        judge = I18N[currentLang].early;
+        judgeColor = '#fb923c';
+        judgementCounts.early++;
+        advancesTile = true;
+      } else if (rawOffset > 30.0 && rawOffset <= 40.0) {
+        judge = I18N[currentLang].late;
+        judgeColor = '#fb923c';
+        judgementCounts.late++;
+        advancesTile = true;
+      } else if (rawOffset >= -30.0 && rawOffset < -25.0) {
+        judge = I18N[currentLang].eperfect;
+        judgeColor = '#38bdf8';
+        judgementCounts.eperfect++;
+        advancesTile = true;
+      } else if (rawOffset > 25.0 && rawOffset <= 30.0) {
+        judge = I18N[currentLang].lperfect;
+        judgeColor = '#38bdf8';
+        judgementCounts.lperfect++;
+        advancesTile = true;
+      } else {
+        // |rawOffset| <= 25.0ms: Perfect!
+        judge = I18N[currentLang].perfect;
+        judgeColor = '#22c55e';
+        judgementCounts.perfect++;
+        advancesTile = true;
+      }
+
+      judgementCounts.total++;
+
+      // Log hit
+      hitHistory.push({
+        tile: currentTileIndex,
+        offset: rawOffset,
+        judge,
+        color: judgeColor
+      });
+
+      recent16Hits.push({ offset: rawOffset, color: judgeColor });
+      if (recent16Hits.length > 16) recent16Hits.shift();
+      renderGhostJudgements();
+
+      // UI updates
+      const banner = document.getElementById('judgementBanner');
+      if (banner) {
+        banner.innerText = judge;
+        banner.style.color = judgeColor;
+      }
+
+      const accEl = document.getElementById('accuracyVal');
+      if (accEl) accEl.innerText = `${computeAbsoluteAccuracy().toFixed(1)}%`;
+
+      if (advancesTile) {
+        currentTileIndex++;
+        activeEarlyCountOnTile = 0;
+        targetTileTime += tileIntervalMs;
+        targetCameraX = currentTileIndex * TILE_SPACING;
+
+        const tileEl = document.getElementById('currentTileVal');
+        if (tileEl) tileEl.innerText = `${currentTileIndex}`;
+
+        // Goal reached check
+        if (targetTilesGoal > 0 && currentTileIndex >= targetTilesGoal) {
+          stopRun(I18N[currentLang].goalClear, true);
+        }
+      }
+    };
+
+    const renderGhostJudgements = () => {
+      const container = document.getElementById('ghostMarkersContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      recent16Hits.forEach((hit, idx) => {
+        // Clamp offset to [-50, +50]ms
+        const clamped = Math.max(-50, Math.min(50, hit.offset));
+        // Percent position across container: -50ms = 0%, 0ms = 50%, +50ms = 100%
+        const pct = ((clamped + 50) / 100) * 100;
+        const opacity = (idx + 1) / recent16Hits.length;
+        const isLatest = idx === recent16Hits.length - 1;
+
+        const marker = document.createElement('div');
+        marker.className = 'absolute top-0 bottom-0 -translate-x-1/2 rounded-full transition-opacity';
+        marker.style.left = `${pct}%`;
+        marker.style.width = isLatest ? '3px' : '2px';
+        marker.style.backgroundColor = hit.color;
+        marker.style.opacity = isLatest ? '1.0' : `${Math.max(0.15, opacity * 0.75)}`;
+        if (isLatest) {
+          marker.style.boxShadow = `0 0 8px ${hit.color}`;
+        }
+        container.appendChild(marker);
+      });
+    };
+
+    const openAnalysisModal = (record) => {
+      const modal = document.getElementById('analysisModal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+
+      const nameInp = document.getElementById('analysisPlayerName');
+      if (nameInp) nameInp.value = record.username || username;
+
+      const durEl = document.getElementById('analysisDuration');
+      if (durEl) durEl.innerText = `${(record.duration || 0).toFixed(3)}s`;
+
+      const tilesEl = document.getElementById('analysisTiles');
+      if (tilesEl) tilesEl.innerText = `${record.tiles || 0} 타일`;
+
+      const accEl = document.getElementById('analysisAccuracy');
+      if (accEl) accEl.innerText = `${(record.accuracy || 0).toFixed(1)}%`;
+
+      const bpmEl = document.getElementById('analysisBpm');
+      if (bpmEl) bpmEl.innerText = `${record.tileBpm} tBPM`;
+
+      const cPerf = document.getElementById('cntAnalysisPerfect');
+      const cEPerf = document.getElementById('cntAnalysisEPerfect');
+      const cLPerf = document.getElementById('cntAnalysisLPerfect');
+      const cEarly = document.getElementById('cntAnalysisEarly');
+      const cLate = document.getElementById('cntAnalysisLate');
+      const cVEarly = document.getElementById('cntAnalysisVEarly');
+      const cLateMiss = document.getElementById('cntAnalysisLateMiss');
+
+      if (cPerf) cPerf.innerText = judgementCounts.perfect;
+      if (cEPerf) cEPerf.innerText = judgementCounts.eperfect;
+      if (cLPerf) cLPerf.innerText = judgementCounts.lperfect;
+      if (cEarly) cEarly.innerText = judgementCounts.early;
+      if (cLate) cLate.innerText = judgementCounts.late;
+      if (cVEarly) cVEarly.innerText = judgementCounts.veryEarly;
+      if (cLateMiss) cLateMiss.innerText = judgementCounts.lateMiss;
+
+      renderAnalysisGraph(record.history || hitHistory, graphDisplayMode);
+    };
+
+    const renderAnalysisGraph = (historyData, mode) => {
+      const canvas = document.getElementById('graphCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth || 580;
+      const h = canvas.height = 180;
+
+      ctx.fillStyle = '#070b14';
+      ctx.fillRect(0, 0, w, h);
+
+      if (!historyData || historyData.length === 0) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('표시할 타격 편차 데이터가 없습니다.', w / 2, h / 2);
+        return;
+      }
+
+      const padding = { top: 20, right: 30, bottom: 25, left: 45 };
+      const plotW = w - padding.left - padding.right;
+      const plotH = h - padding.top - padding.bottom;
+
+      const maxTile = Math.max(1, historyData[historyData.length - 1].tile);
+      const yMax = mode === 'absolute' ? 50 : 50;
+      const yMin = mode === 'absolute' ? 0 : -50;
+
+      const getY = (val) => padding.top + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
+
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+
+      // Zero baseline
+      const zeroY = getY(0);
+      ctx.beginPath();
+      ctx.moveTo(padding.left, zeroY);
+      ctx.lineTo(w - padding.right, zeroY);
+      ctx.stroke();
+
+      // Guide lines (±25ms, ±40ms)
+      [25, -25, 40, -40].forEach((guide) => {
+        if (mode === 'absolute' && guide < 0) return;
+        const gy = getY(guide);
+        ctx.strokeStyle = Math.abs(guide) === 25 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(249, 115, 22, 0.2)';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(padding.left, gy);
+        ctx.lineTo(w - padding.right, gy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${guide > 0 ? '+' : ''}${guide}ms`, padding.left - 6, gy + 3);
+      });
+
+      // Plot line
+      ctx.beginPath();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+
+      historyData.forEach((pt, i) => {
+        const val = mode === 'absolute' ? Math.abs(pt.offset) : pt.offset;
+        const x = padding.left + (pt.tile / maxTile) * plotW;
+        const y = getY(Math.max(yMin, Math.min(yMax, val)));
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Plot points
+      historyData.forEach((pt) => {
+        const val = mode === 'absolute' ? Math.abs(pt.offset) : pt.offset;
+        const x = padding.left + (pt.tile / maxTile) * plotW;
+        const y = getY(Math.max(yMin, Math.min(yMax, val)));
+
+        ctx.fillStyle = pt.color || '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Axis labels
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`타일 (총 ${maxTile} 타일)`, padding.left + plotW / 2, h - 6);
+    };
+
+    const resizeCanvas = () => {
+      const canvas = document.getElementById('gameCanvas');
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+      }
+    };
+
+    const renderTrack = (ctx, dpr, width, height) => {
+      const centerY = height / 2;
+      const startTile = Math.max(0, Math.floor((cameraX - width / 2) / TILE_SPACING) - 2);
+      const endTile = startTile + Math.ceil(width / TILE_SPACING) + 5;
+
+      // Draw straight 180° track tiles
+      for (let i = startTile; i <= endTile; i++) {
+        const tx = (width / 2) + (i * TILE_SPACING) - cameraX;
+        const isCurrent = i === currentTileIndex;
+        const isPassed = i < currentTileIndex;
+
+        // Tile base circle
+        ctx.beginPath();
+        ctx.arc(tx, centerY, 24, 0, Math.PI * 2);
+        if (isCurrent) {
+          ctx.fillStyle = 'rgba(234, 179, 8, 0.25)';
+          ctx.fill();
+          ctx.strokeStyle = '#eab308';
+          ctx.lineWidth = 3;
+        } else if (isPassed) {
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+          ctx.fill();
+          ctx.strokeStyle = '#0284c7';
+          ctx.lineWidth = 1.5;
+        } else {
+          ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+          ctx.fill();
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1.5;
+        }
+        ctx.stroke();
+
+        // Inner center pip
+        ctx.beginPath();
+        ctx.arc(tx, centerY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = isCurrent ? '#fde047' : isPassed ? '#38bdf8' : '#64748b';
+        ctx.fill();
+
+        // Tile number
+        ctx.fillStyle = isCurrent ? '#fef08a' : '#64748b';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${i + 1}`, tx, centerY + 38);
+      }
+
+      // Draw early X markers on orbits
+      earlyMarkerOrbits.forEach((marker) => {
+        const mx = (width / 2) + marker.x - cameraX;
+        const my = centerY - marker.y;
+        ctx.save();
+        ctx.strokeStyle = `rgba(249, 115, 22, ${marker.alpha})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(mx, my, PLANET_RADIUS * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Draw X inside
+        const d = (PLANET_RADIUS * 0.7) * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(mx - d, my - d);
+        ctx.lineTo(mx + d, my + d);
+        ctx.moveTo(mx + d, my - d);
+        ctx.lineTo(mx - d, my + d);
+        ctx.stroke();
+        ctx.restore();
+      });
+    };
+
+    const renderPlanets = (ctx, dpr, width, height, now) => {
+      const centerY = height / 2;
+      let pivotX = (width / 2) + (currentTileIndex * TILE_SPACING) - cameraX;
+      let pivotY = centerY;
+
+      let orbitAngle = 0;
+
+      if (isCountingDown) {
+        // Continuous smooth rotation preview during countdown
+        const quarterMs = tileIntervalMs * 4;
+        const progress = (now % quarterMs) / quarterMs;
+        orbitAngle = progress * Math.PI * 2;
+      } else if (isRunning) {
+        const timeRemaining = targetTileTime - now;
+        const fraction = 1.0 - (timeRemaining / tileIntervalMs);
+        orbitAngle = Math.PI - Math.min(Math.PI * 1.5, Math.max(-0.5, fraction * Math.PI));
+      }
+
+      const isFirePivoting = currentTileIndex % 2 === 0;
+      const orbitingX = pivotX + Math.cos(orbitAngle) * TILE_SPACING;
+      const orbitingY = pivotY - Math.sin(orbitAngle) * TILE_SPACING;
+
+      // Smooth continuous trail
+      if (isRunning) {
+        cometTrails.push({ x: orbitingX, y: orbitingY, time: now });
+        if (cometTrails.length > 20) cometTrails.shift();
+
+        cometTrails.forEach((trail, idx) => {
+          const alpha = (idx / cometTrails.length) * 0.4;
+          ctx.beginPath();
+          ctx.arc(trail.x, trail.y, PLANET_RADIUS * (0.4 + alpha * 0.6), 0, Math.PI * 2);
+          ctx.fillStyle = isFirePivoting ? `rgba(56, 189, 248, ${alpha})` : `rgba(239, 68, 68, ${alpha})`;
+          ctx.fill();
+        });
+      }
+
+      // Draw Pivoting Planet (Stationary on tile)
+      ctx.beginPath();
+      ctx.arc(pivotX, pivotY, PLANET_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = isFirePivoting ? '#ef4444' : '#38bdf8';
+      ctx.shadowColor = isFirePivoting ? '#ef4444' : '#38bdf8';
+      ctx.shadowBlur = 15;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Draw Orbiting Planet
+      ctx.beginPath();
+      ctx.arc(orbitingX, orbitingY, PLANET_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = isFirePivoting ? '#38bdf8' : '#ef4444';
+      ctx.shadowColor = isFirePivoting ? '#38bdf8' : '#ef4444';
+      ctx.shadowBlur = 20;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    };
+
+    const gameLoop = (now) => {
+      const canvas = document.getElementById('gameCanvas');
+      if (canvas && canvas.width > 0 && canvas.height > 0) {
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.width / dpr;
+        const h = canvas.height / dpr;
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        // Smooth camera lerp
+        cameraX += (targetCameraX - cameraX) * 0.15;
+
+        // Render scene
+        renderTrack(ctx, dpr, w, h);
+        renderPlanets(ctx, dpr, w, h, now);
+
+        ctx.restore();
+      }
+
+      // Active run checks
+      if (isRunning) {
+        currentStreakSeconds = (now - runStartTime) / 1000;
+        const streakEl = document.getElementById('streakTimer');
+        if (streakEl) streakEl.innerText = `${currentStreakSeconds.toFixed(3)}s`;
+
+        // Independent Target Hitsound Scheduler
+        if (now >= nextIndependentBeatTime) {
+          sound.playKick();
+          nextIndependentBeatTime += tileIntervalMs;
+        }
+
+        // Late miss threshold check (> +40ms overdue without tap)
+        if (now - targetTileTime - calibrationOffset > 40.0) {
+          judgementCounts.lateMiss++;
+          stopRun(I18N[currentLang].lateMissFail);
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    };
+
+    addSafeListener('inputUsername', 'input', (e) => {
+      username = e.target.value.trim() || 'Player';
+      try {
+        localStorage.setItem('adofai_v2_user', username);
+      } catch (err) {}
+    });
+
+    addSafeListener('sliderSaveThreshold', 'input', (e) => {
+      updateThreshold(e.target.value);
+    });
+
+    addSafeListener('sliderTargetTiles', 'input', (e) => {
+      updateTargetTilesGoal(e.target.value);
+    });
+
+    addSafeListener('rankTab8B', 'click', () => setRankViewDivision('8beat'));
+    addSafeListener('rankTab16B', 'click', () => setRankViewDivision('16beat'));
+
+    addSafeListener('rankFilterBpm', 'input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      rankViewBpmFilter = isNaN(val) ? null : val;
+      renderScoreBoard();
+    });
+
+    addSafeListener('btnRankClearFilter', 'click', () => {
+      const inp = document.getElementById('rankFilterBpm');
+      if (inp) inp.value = '';
+      rankViewBpmFilter = null;
+      renderScoreBoard();
+    });
+
+    addSafeListener('btnLangKo', 'click', () => setLanguage('ko'));
+    addSafeListener('btnLangEn', 'click', () => setLanguage('en'));
+
+    // Keybindings & Gameplay input
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') e.preventDefault();
+
+      if (isAnyModalOpen()) {
+        if (rebindingTarget !== null) {
+          e.preventDefault();
+          const pressed = e.key.toLowerCase();
+          if (rebindingTarget === '8b') {
+            key8B = pressed;
+            try { localStorage.setItem('adofai_v2_k8b', key8B); } catch (err) {}
+          } else if (rebindingTarget === 1) {
+            key1 = pressed;
+            try { localStorage.setItem('adofai_v2_k1', key1); } catch (err) {}
+          } else if (rebindingTarget === 2) {
+            key2 = pressed;
+            try { localStorage.setItem('adofai_v2_k2', key2); } catch (err) {}
+          }
+          rebindingTarget = null;
+          document.getElementById('btnBindKey8B')?.classList.remove('ring-2', 'ring-cyan-400');
+          document.getElementById('btnBindKey1')?.classList.remove('ring-2', 'ring-cyan-400');
+          document.getElementById('btnBindKey2')?.classList.remove('ring-2', 'ring-cyan-400');
+          updateKeysHUD();
+        }
+        return;
+      }
+
+      const pressed = e.key.toLowerCase();
+      if (streamDivision === '8beat') {
+        if (pressed === key8B) {
+          e.preventDefault();
+          handlePlayerHit(pressed);
+        }
+      } else {
+        if (pressed === key1 || pressed === key2) {
+          e.preventDefault();
+          handlePlayerHit(pressed);
+        }
+      }
+    });
+
+    // Canvas click & touch triggers
+    const canvasContainerEl = document.getElementById('canvasContainer');
+    if (canvasContainerEl) {
+      canvasContainerEl.addEventListener('touchstart', (e) => {
+        if (isAnyModalOpen()) return;
+        e.preventDefault();
+        handlePlayerHit('touch');
+      }, { passive: false });
+
+      canvasContainerEl.addEventListener('mousedown', () => {
+        if (isAnyModalOpen()) return;
+        handlePlayerHit('mouse');
+      });
+    }
+
+    addSafeListener('btnAction', 'click', () => {
+      if (isAnyModalOpen()) return;
+      if (isRunning || isCountingDown) {
+        stopRun(I18N[currentLang].userStop);
+      } else {
+        triggerCountdown();
+      }
+    });
+
+    addSafeListener('tab8Beat', 'click', () => setDivisionMode('8beat'));
+    addSafeListener('tab16Beat', 'click', () => setDivisionMode('16beat'));
+    addSafeListener('bpmSlider', 'input', (e) => updateBaseBPM(e.target.value));
+
+    // Modals open/close
+    addSafeListener('btnSettingsToggle', 'click', () => {
+      document.getElementById('settingsModal')?.classList.remove('hidden');
+    });
+    addSafeListener('btnCloseSettings', 'click', () => {
+      document.getElementById('settingsModal')?.classList.add('hidden');
+      rebindingTarget = null;
+    });
+    addSafeListener('btnSaveSettings', 'click', () => {
+      document.getElementById('settingsModal')?.classList.add('hidden');
+    });
+
+    addSafeListener('btnCalibrateToggle', 'click', () => {
+      document.getElementById('calibrationModal')?.classList.remove('hidden');
+    });
+    addSafeListener('btnCloseCalib', 'click', () => {
+      document.getElementById('calibrationModal')?.classList.add('hidden');
+    });
+    addSafeListener('btnSaveCalib', 'click', () => {
+      document.getElementById('calibrationModal')?.classList.add('hidden');
+    });
+
+    addSafeListener('calibSlider', 'input', (e) => {
+      calibrationOffset = parseInt(e.target.value, 10) || 0;
+      const disp = document.getElementById('calibValDisplay');
+      if (disp) disp.innerText = `${calibrationOffset > 0 ? '+' : ''}${calibrationOffset} ms`;
+      try { localStorage.setItem('adofai_v2_calib', calibrationOffset); } catch (err) {}
+    });
+
+    const adjustCalib = (delta) => {
+      calibrationOffset = Math.max(-150, Math.min(150, calibrationOffset + delta));
+      const s = document.getElementById('calibSlider');
+      const d = document.getElementById('calibValDisplay');
+      if (s) s.value = calibrationOffset;
+      if (d) d.innerText = `${calibrationOffset > 0 ? '+' : ''}${calibrationOffset} ms`;
+      try { localStorage.setItem('adofai_v2_calib', calibrationOffset); } catch (err) {}
+    };
+
+    addSafeListener('btnCalibMinus5', 'click', () => adjustCalib(-5));
+    addSafeListener('btnCalibMinus1', 'click', () => adjustCalib(-1));
+    addSafeListener('btnCalibPlus1', 'click', () => adjustCalib(1));
+    addSafeListener('btnCalibPlus5', 'click', () => adjustCalib(5));
+    addSafeListener('btnCalibReset', 'click', () => {
+      calibrationOffset = 0;
+      adjustCalib(0);
+    });
+
+    // Key rebinding triggers
+    addSafeListener('btnBindKey8B', 'click', () => {
+      rebindingTarget = '8b';
+      document.getElementById('btnBindKey8B')?.classList.add('ring-2', 'ring-cyan-400');
+      document.getElementById('btnBindKey1')?.classList.remove('ring-2', 'ring-cyan-400');
+      document.getElementById('btnBindKey2')?.classList.remove('ring-2', 'ring-cyan-400');
+    });
+    addSafeListener('btnBindKey1', 'click', () => {
+      rebindingTarget = 1;
+      document.getElementById('btnBindKey1')?.classList.add('ring-2', 'ring-cyan-400');
+      document.getElementById('btnBindKey8B')?.classList.remove('ring-2', 'ring-cyan-400');
+      document.getElementById('btnBindKey2')?.classList.remove('ring-2', 'ring-cyan-400');
+    });
+    addSafeListener('btnBindKey2', 'click', () => {
+      rebindingTarget = 2;
+      document.getElementById('btnBindKey2')?.classList.add('ring-2', 'ring-cyan-400');
+      document.getElementById('btnBindKey8B')?.classList.remove('ring-2', 'ring-cyan-400');
+      document.getElementById('btnBindKey1')?.classList.remove('ring-2', 'ring-cyan-400');
+    });
+
+    // Analysis modal controls
+    addSafeListener('btnCloseAnalysis', 'click', () => {
+      document.getElementById('analysisModal')?.classList.add('hidden');
+    });
+    addSafeListener('btnConfirmContinue', 'click', () => {
+      document.getElementById('analysisModal')?.classList.add('hidden');
+    });
+
+    addSafeListener('btnApplyAnalysisName', 'click', () => {
+      const inp = document.getElementById('analysisPlayerName');
+      if (inp && inp.value.trim()) {
+        username = inp.value.trim();
+        const mainInp = document.getElementById('inputUsername');
+        if (mainInp) mainInp.value = username;
+        try { localStorage.setItem('adofai_v2_user', username); } catch (e) {}
+      }
+    });
+
+    addSafeListener('btnGraphRaw', 'click', () => {
+      graphDisplayMode = 'deviation';
+      const bRaw = document.getElementById('btnGraphRaw');
+      const bAbs = document.getElementById('btnGraphAbs');
+      if (bRaw) bRaw.className = 'px-2 py-0.5 rounded bg-cyan-600 text-white font-bold';
+      if (bAbs) bAbs.className = 'px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white';
+      renderAnalysisGraph(hitHistory, graphDisplayMode);
+    });
+
+    addSafeListener('btnGraphAbs', 'click', () => {
+      graphDisplayMode = 'absolute';
+      const bRaw = document.getElementById('btnGraphRaw');
+      const bAbs = document.getElementById('btnGraphAbs');
+      if (bAbs) bAbs.className = 'px-2 py-0.5 rounded bg-cyan-600 text-white font-bold';
+      if (bRaw) bRaw.className = 'px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white';
+      renderAnalysisGraph(hitHistory, graphDisplayMode);
+    });
+
+    addSafeListener('btnClearScores', 'click', () => {
+      try {
+        localStorage.removeItem('adofai_v2_scores');
+      } catch (e) {}
+      renderScoreBoard();
+      const b = document.getElementById('bestStreak');
+      if (b) b.innerText = '0.000s';
+    });
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+    });
+
+    window.addEventListener('load', () => {
+      loadSavedSettings();
+      resizeCanvas();
+      requestAnimationFrame(gameLoop);
+    });
+  </script>
+</body>
+</html>
