@@ -1,0 +1,2 @@
+# ADOFAI-stemina-tester
+beta
