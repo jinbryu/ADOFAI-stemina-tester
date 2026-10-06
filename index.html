@@ -770,6 +770,39 @@
              (c && !c.classList.contains('hidden'));
     };
 
+    
+// 카운트다운 시작 시간 및 입력 로그 저장소
+let countdownStartTime = 0;
+let inputLogs = [];
+
+// 서버로 최종 전송하는 함수
+async function submitRecord(summaryData) {
+  const payload = {
+    username: prompt("플레이어 닉네임을 입력하세요:", "Anonymous") || "Anonymous",
+    timestamp: new Date().toISOString(),
+    settings: {
+      bpm: typeof bpm !== 'undefined' ? bpm : 220,
+    },
+    summary: summaryData,
+    inputs: inputLogs
+  };
+
+  try {
+    const res = await fetch("https://adofai-records.jinbryu.workers.dev/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      console.log("기록 저장 성공!");
+    } else {
+      console.warn("기록 저장 실패");
+    }
+  } catch (err) {
+    console.error("전송 에러:", err);
+  }
+}
     const setLanguage = (lang) => {
       currentLang = lang === 'en' ? 'en' : 'ko';
       try {
