@@ -1671,7 +1671,7 @@
       } else {
         if (pressed === key1 || pressed === key2) {
           e.preventDefault();
-          handlePlayerHit(pressed);
+          handlePlayerHit(pressed); // ✅ pressed를 전달하도록 수정
         }
       }
     });
