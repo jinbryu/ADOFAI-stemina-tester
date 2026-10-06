@@ -17,7 +17,6 @@
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
     }
-    /* Custom glow utilities */
     .glow-cyan {
       box-shadow: 0 0 25px rgba(6, 182, 212, 0.45);
     }
@@ -30,7 +29,6 @@
     .glow-ice {
       box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
     }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -69,7 +67,6 @@
 
       <!-- User Profile & Action Tools -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Player Name Input -->
         <div class="flex items-center gap-1.5 bg-slate-950/70 border border-white/10 rounded-xl px-2.5 py-1.5">
           <span class="text-xs text-slate-400">👤</span>
           <input id="inputUsername" type="text" maxlength="15" value="Player" 
@@ -77,14 +74,12 @@
             placeholder="플레이어명">
         </div>
 
-        <!-- Sync Latency Button -->
         <button id="btnCalibrateToggle" type="button" 
           class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-semibold transition active:scale-95 shadow">
           <span>🎧</span>
           <span class="hidden sm:inline">싱크 보정</span>
         </button>
 
-        <!-- Settings Button -->
         <button id="btnSettingsToggle" type="button" 
           class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-semibold transition active:scale-95 shadow flex items-center gap-1">
           <span>⚙️</span>
@@ -98,7 +93,7 @@
   <!-- Main Stage & Game Area -->
   <main class="max-w-6xl w-full mx-auto p-3 sm:p-6 flex-1 flex flex-col gap-4">
 
-    <!-- Canvas Simulation & Visual Feedback Container -->
+    <!-- Canvas Simulation Container -->
     <div class="relative w-full rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border border-white/10 shadow-2xl overflow-hidden flex flex-col">
       
       <!-- Top HUD Stats Strip -->
@@ -123,7 +118,6 @@
             <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">최고 기록</div>
             <div id="bestStreak" class="text-sm sm:text-base font-bold text-slate-300 tabular-nums">0.000s</div>
           </div>
-          <!-- Active Key Indicator -->
           <div class="hidden sm:flex items-center gap-1.5 bg-slate-900 border border-white/10 p-1.5 rounded-xl">
             <span class="text-[10px] text-slate-400 font-semibold px-1">키</span>
             <span id="hudKeyPrimary" class="px-2 py-0.5 rounded bg-slate-800 text-yellow-400 font-black text-xs border border-white/5">F</span>
@@ -132,11 +126,10 @@
         </div>
       </div>
 
-      <!-- Canvas Area (ADOFAI Straight Track & Dual Planets) -->
+      <!-- Canvas Area -->
       <div class="relative w-full h-[240px] sm:h-[300px] flex items-center justify-center bg-[#070b14] overflow-hidden cursor-pointer" id="canvasContainer">
         <canvas id="gameCanvas" class="w-full h-full block"></canvas>
 
-        <!-- Countdown Overlay -->
         <div id="countdownOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-30 hidden">
           <div id="countdownText" class="text-7xl sm:text-8xl font-black font-mono tracking-wider text-cyan-400 drop-shadow-[0_0_35px_rgba(6,182,212,0.8)] scale-110 transition-transform">
             3
@@ -146,7 +139,6 @@
           </div>
         </div>
 
-        <!-- Center Judgement Pop Banner -->
         <div class="absolute bottom-5 inset-x-0 flex justify-center pointer-events-none z-20">
           <div id="judgementBanner" class="text-base sm:text-xl font-black font-mono tracking-widest text-slate-400 drop-shadow-md">
             SPACE 또는 시작 버튼을 누르세요
@@ -154,7 +146,7 @@
         </div>
       </div>
 
-      <!-- Judgement Bar with Recent 16-Hit Ghosting -->
+      <!-- Judgement Bar -->
       <div class="w-full bg-slate-950 p-2.5 sm:p-3 border-t border-white/5 flex flex-col items-center justify-center gap-1.5 z-20">
         <div class="flex items-center justify-between w-full max-w-xl text-[10px] font-mono text-slate-500 font-semibold px-2">
           <span>-50ms (너무빠름)</span>
@@ -165,7 +157,6 @@
         </div>
 
         <div class="relative w-full max-w-xl h-6 bg-slate-900 rounded-lg border border-white/10 overflow-hidden flex items-center" id="judgementBar">
-          <!-- Background Zones -->
           <div class="absolute inset-y-0 left-0 w-full flex">
             <div class="h-full bg-orange-500/10" style="width: 10%;"></div>
             <div class="h-full bg-amber-500/15" style="width: 10%;"></div>
@@ -175,23 +166,17 @@
             <div class="h-full bg-amber-500/15" style="width: 10%;"></div>
             <div class="h-full bg-rose-500/20" style="width: 10%;"></div>
           </div>
-
-          <!-- Center Reference Line -->
           <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-emerald-400/80 -translate-x-1/2 shadow-[0_0_8px_#10b981]"></div>
-
-          <!-- Dynamic Ghost Markers Container -->
           <div id="ghostMarkersContainer" class="absolute inset-0 pointer-events-none"></div>
         </div>
       </div>
 
     </div>
 
-    <!-- Control Dashboard: BPM Slider & Mode Selector -->
+    <!-- Control Dashboard -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       
-      <!-- Primary Action & Division Selector (4 Cols) -->
       <div class="lg:col-span-4 bg-slate-900/70 border border-white/10 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-xl backdrop-blur">
-        
         <div>
           <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">스트림 부문 선택</div>
           <div class="grid grid-cols-2 gap-2">
@@ -206,18 +191,14 @@
           </div>
         </div>
 
-        <!-- Big Start / Stop Action Button -->
         <button id="btnAction" type="button" 
           class="w-full py-4 rounded-xl font-black text-sm tracking-wider uppercase transition-all duration-150 transform active:scale-95 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-xl shadow-cyan-500/25 flex items-center justify-center gap-2">
           <span id="actionIcon">▶</span>
           <span id="actionText">시작 (Start)</span>
         </button>
-
       </div>
 
-      <!-- BPM Slider & Fixed Layout Parameter Box (8 Cols) -->
       <div class="lg:col-span-8 bg-slate-900/70 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-xl backdrop-blur">
-        
         <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-3">
           <div>
             <span class="text-xs font-bold text-slate-300">곡 기본 템포 (Base Song BPM)</span>
@@ -240,7 +221,6 @@
           </div>
         </div>
 
-        <!-- Slider Bar -->
         <div class="space-y-1.5">
           <input id="bpmSlider" type="range" min="160" max="400" step="1" value="225" 
             class="w-full h-2.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-white/10">
@@ -258,12 +238,11 @@
           </div>
           <div>사망 조건: <span class="text-rose-400 font-semibold">느림!! 즉사</span> 또는 <span class="text-orange-400 font-semibold">너무빠름 3회 누적</span></div>
         </div>
-
       </div>
 
     </div>
 
-    <!-- Leaderboard / Ranking Section (Remote Server / GitHub Sync) -->
+    <!-- Leaderboard / Ranking Section -->
     <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur space-y-4">
       
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
@@ -273,7 +252,6 @@
           <span class="text-[10px] text-cyan-400 font-semibold">(클라우드 연동 기록)</span>
         </div>
 
-        <!-- Division Switcher & Search Bar -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <div class="flex rounded-xl bg-slate-950 p-1 border border-white/10 text-xs shrink-0">
             <button id="rankTab8B" type="button" class="py-1 px-2.5 rounded-lg text-slate-400 font-bold transition">8비트</button>
@@ -291,14 +269,12 @@
         </div>
       </div>
 
-      <!-- Score Records List Container -->
-      <div id="scoreList" class="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-        <!-- Records injected dynamically via JS -->
-      </div>
+      <!-- Score Records List -->
+      <div id="scoreList" class="space-y-2 max-h-[360px] overflow-y-auto pr-1"></div>
 
       <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-slate-500">
         <span id="rankThresholdHint">최소 64타일 이상 완주 시 랭킹 자동 등록</span>
-        <span class="text-slate-400 text-[10px]">💡 항목을 클릭하면 당시 플레이 상세 그래프를 확인합니다.</span>
+        <span class="text-slate-400 text-[10px]">💡 항목 클릭 시 당시 타격 편차 그래프 상세 분석 모달 오픈</span>
       </div>
 
     </div>
@@ -536,7 +512,6 @@
 
   <script>
     const WORKER_URL = "https://adofai-records.jinbryu.workers.dev/submit";
-    // records.json 은 저장소 루트에 배포됨 (캐시 우회 쿼리 포함)
     const RECORDS_JSON_URL = "./records.json";
 
     const I18N = {
@@ -602,15 +577,18 @@
 
     let currentTileIndex = 0;
     let runStartTime = 0;
-    let countdownStartTime = 0;
     let targetTileTime = 0;
     let nextIndependentBeatTime = 0;
     let currentStreakSeconds = 0;
     let bestStreakSeconds = 0;
 
+    // 초경량 키 입력 기록 변수 (첫 타격 기준 ms 상대 오프셋)
+    let firstHitTimestamp = null;
+    let k1Times = [];
+    let k2Times = [];
+
     let activeEarlyCountOnTile = 0;
     let hitHistory = [];
-    let inputLogs = [];
     let recent16Hits = [];
     let earlyMarkerOrbits = [];
     let cometTrails = [];
@@ -740,7 +718,7 @@
              (c && !c.classList.contains('hidden'));
     };
 
-    // Cloudflare Worker 로 점수 전송
+    // Cloudflare Worker로 초경량 레코드 전송
     async function submitRecord(recordPayload) {
       try {
         const res = await fetch(WORKER_URL, {
@@ -749,15 +727,15 @@
           body: JSON.stringify(recordPayload)
         });
         if (res.ok) {
-          console.log("기록이 서버에 커밋되었습니다.");
-          setTimeout(fetchRemoteRecords, 1500); // 갱신 반영 요청
+          console.log("기록이 서버에 저장되었습니다.");
+          setTimeout(fetchRemoteRecords, 1500);
         }
       } catch (err) {
         console.warn("기록 전송 실패:", err);
       }
     }
 
-    // GitHub Pages에 업로드된 records.json 불러오기
+    // GitHub의 records.json 가져오기
     async function fetchRemoteRecords() {
       try {
         const res = await fetch(`${RECORDS_JSON_URL}?t=${Date.now()}`);
@@ -768,7 +746,7 @@
           renderScoreBoard();
         }
       } catch (e) {
-        console.log("원격 기록 로드 실패 또는 파일 생성 전:", e);
+        console.log("원격 기록 로드 대기 중");
       }
     }
 
@@ -937,7 +915,7 @@
       }
     };
 
-    // 로컬과 원격 JSON을 합쳐서 렌더링
+    // 랭킹 렌더링
     const renderScoreBoard = () => {
       const container = document.getElementById('scoreList');
       if (!container) return;
@@ -945,7 +923,6 @@
       const localList = getStoredLocalScores();
       let combined = [...remoteRecordsList, ...localList];
 
-      // 데이터 포맷 단일화
       let normalized = combined.map((item, idx) => {
         const baseBpm = item.baseBpm || item.settings?.bpm || 225;
         const division = item.division || (item.settings?.division || '16beat');
@@ -956,7 +933,7 @@
 
         return {
           id: item.id || `local_${idx}`,
-          username: item.username || 'Anonymous',
+          username: item.username || 'Player',
           date: item.date || (item.timestamp ? item.timestamp.split('T')[0] : ''),
           baseBpm,
           tileBpm,
@@ -965,13 +942,13 @@
           duration,
           accuracy,
           reason: item.reason || item.summary?.deathReason || '',
-          history: item.history || item.historyData || null,
-          inputs: item.inputs || null,
+          k1: item.k1 || [],
+          k2: item.k2 || [],
+          history: item.history || null,
           judgements: item.judgements || null
         };
       });
 
-      // 중복 ID 방지 및 필터링
       const seen = new Set();
       normalized = normalized.filter(item => {
         const key = `${item.username}_${item.duration}_${item.tiles}`;
@@ -1028,7 +1005,6 @@
         `;
       }).join('');
 
-      // 랭킹 리스트 아이템 클릭 시 세부 분석 모달 오픈
       container.querySelectorAll('.score-row').forEach(rowEl => {
         rowEl.addEventListener('click', () => {
           const idx = parseInt(rowEl.getAttribute('data-idx'), 10);
@@ -1067,7 +1043,6 @@
 
       const quarterMs = tileIntervalMs * 4;
       const countSteps = ['3', '2', '1', I18N[currentLang].goCount];
-      countdownStartTime = performance.now();
 
       countSteps.forEach((step, idx) => {
         const timer = setTimeout(() => {
@@ -1105,8 +1080,11 @@
       nextIndependentBeatTime = targetTileTime;
 
       currentStreakSeconds = 0;
+      firstHitTimestamp = null;
+      k1Times = [];
+      k2Times = [];
+
       hitHistory = [];
-      inputLogs = [];
       recent16Hits = [];
       earlyMarkerOrbits = [];
       cometTrails = [];
@@ -1164,7 +1142,6 @@
         if (b) b.innerText = `${bestStreakSeconds.toFixed(3)}s`;
       }
 
-      // 최소 기준 도달 시 로컬 보관 및 Cloudflare Worker 전송
       if (currentTileIndex >= saveThreshold || isClear) {
         const record = {
           id: "rec_" + Date.now(),
@@ -1177,37 +1154,18 @@
           tiles: currentTileIndex,
           accuracy: totalAcc,
           reason: isClear ? I18N[currentLang].goalClear : reason,
-          history: hitHistory.slice(0, 800),
+          k1: k1Times,
+          k2: k2Times,
           judgements: { ...judgementCounts }
         };
 
-        // 로컬 브라우저 저장
         const local = getStoredLocalScores();
         local.push(record);
         try { localStorage.setItem('adofai_v2_scores', JSON.stringify(local)); } catch (e) {}
         renderScoreBoard();
 
-        // Cloudflare Worker 경유 GitHub 저장소 기록 전송
-        submitRecord({
-          username: record.username,
-          timestamp: new Date().toISOString(),
-          division: streamDivision,
-          settings: {
-            bpm: baseBPM,
-            division: streamDivision,
-            offsetMs: calibrationOffset
-          },
-          summary: {
-            survivedTiles: currentTileIndex,
-            survivedTimeMs: Math.round(runDuration * 1000),
-            accuracy: totalAcc,
-            deathReason: record.reason
-          },
-          judgements: { ...judgementCounts },
-          historyData: hitHistory.slice(0, 800),
-          inputs: inputLogs.slice(0, 800)
-        });
-
+        // Cloudflare Worker로 초경량 k1/k2 JSON 제출
+        submitRecord(record);
         openAnalysisModal(record);
       }
     };
@@ -1222,14 +1180,21 @@
       }
 
       const now = performance.now();
-      const rawOffset = now - targetTileTime - calibrationOffset;
 
-      inputLogs.push({
-        t: Math.round(now - countdownStartTime),
-        key: keyName,
-        targetTile: currentTileIndex,
-        offset: Math.round(rawOffset)
-      });
+      // 첫 타격 시간을 0ms 기준으로 잡고 상대 시각 저장
+      if (firstHitTimestamp === null) {
+        firstHitTimestamp = now;
+      }
+      const hitMsFromFirst = Math.round(now - firstHitTimestamp);
+
+      if (streamDivision === '16beat') {
+        if (keyName === key1) k1Times.push(hitMsFromFirst);
+        else if (keyName === key2) k2Times.push(hitMsFromFirst);
+      } else {
+        k1Times.push(hitMsFromFirst);
+      }
+
+      const rawOffset = now - targetTileTime - calibrationOffset;
 
       let judge = '';
       let judgeColor = '#22c55e';
@@ -1349,31 +1314,37 @@
       });
     };
 
-    // 기록 상세 분석 모달 열기
+    // k1, k2 배열을 바탕으로 그래프용 history 복원 함수
+    function reconstructHistory(k1 = [], k2 = [], intervalMs = 66.7) {
+      const combined = [
+        ...k1.map(t => ({ t, k: 1 })),
+        ...k2.map(t => ({ t, k: 2 }))
+      ].sort((a, b) => a.t - b.t);
+
+      return combined.map((hit, idx) => {
+        const targetExpected = idx * intervalMs;
+        const offset = hit.t - targetExpected;
+        return {
+          tile: idx,
+          offset: offset,
+          color: Math.abs(offset) <= 25 ? '#22c55e' : (Math.abs(offset) <= 40 ? '#fb923c' : '#ef4444')
+        };
+      });
+    }
+
+    // 상세 분석 모달 열기
     const openAnalysisModal = (record) => {
       const modal = document.getElementById('analysisModal');
       if (!modal) return;
       modal.classList.remove('hidden');
 
-      const nameEl = document.getElementById('analysisPlayerName');
-      if (nameEl) nameEl.innerText = record.username || 'Anonymous';
+      document.getElementById('analysisPlayerName').innerText = record.username || 'Anonymous';
+      document.getElementById('analysisDate').innerText = record.date || '';
+      document.getElementById('analysisDuration').innerText = `${(record.duration || 0).toFixed(3)}s`;
+      document.getElementById('analysisTiles').innerText = `${record.tiles || 0} 타일`;
+      document.getElementById('analysisAccuracy').innerText = `${(record.accuracy || 0).toFixed(1)}%`;
+      document.getElementById('analysisBpm').innerText = `${record.tileBpm || (record.baseBpm * 4)} tBPM`;
 
-      const dateEl = document.getElementById('analysisDate');
-      if (dateEl) dateEl.innerText = record.date || '';
-
-      const durEl = document.getElementById('analysisDuration');
-      if (durEl) durEl.innerText = `${(record.duration || 0).toFixed(3)}s`;
-
-      const tilesEl = document.getElementById('analysisTiles');
-      if (tilesEl) tilesEl.innerText = `${record.tiles || 0} 타일`;
-
-      const accEl = document.getElementById('analysisAccuracy');
-      if (accEl) accEl.innerText = `${(record.accuracy || 0).toFixed(1)}%`;
-
-      const bpmEl = document.getElementById('analysisBpm');
-      if (bpmEl) bpmEl.innerText = `${record.tileBpm || (record.baseBpm * 4)} tBPM`;
-
-      // 기록에 판정 카운트가 있으면 그것을 사용, 없으면 현재 카운트 표시
       const jc = record.judgements || judgementCounts;
       document.getElementById('cntAnalysisPerfect').innerText = jc.perfect || 0;
       document.getElementById('cntAnalysisEPerfect').innerText = jc.eperfect || 0;
@@ -1383,14 +1354,11 @@
       document.getElementById('cntAnalysisVEarly').innerText = jc.veryEarly || 0;
       document.getElementById('cntAnalysisLateMiss').innerText = jc.lateMiss || 0;
 
-      // history 데이터가 inputs 원본 로그 형태일 경우 자동 변환
+      // k1, k2 가 있으면 복원, 없으면 기존 history 사용
       let historyData = record.history;
-      if (!historyData && record.inputs) {
-        historyData = record.inputs.map(inp => ({
-          tile: inp.targetTile || 0,
-          offset: inp.offset !== undefined ? inp.offset : 0,
-          color: Math.abs(inp.offset || 0) <= 25 ? '#22c55e' : '#fb923c'
-        }));
+      if (!historyData && (record.k1?.length || record.k2?.length)) {
+        const interval = (60 / (record.tileBpm || 900)) * 1000;
+        historyData = reconstructHistory(record.k1, record.k2, interval);
       }
 
       currentModalHistory = historyData || hitHistory;
@@ -1420,7 +1388,7 @@
       const plotH = h - padding.top - padding.bottom;
 
       const maxTile = Math.max(1, historyData[historyData.length - 1].tile || 1);
-      const yMax = mode === 'absolute' ? 50 : 50;
+      const yMax = 50;
       const yMin = mode === 'absolute' ? 0 : -50;
 
       const getY = (val) => padding.top + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
@@ -1735,7 +1703,6 @@
     addSafeListener('tab16Beat', 'click', () => setDivisionMode('16beat'));
     addSafeListener('bpmSlider', 'input', (e) => updateBaseBPM(e.target.value));
 
-    // Modals
     addSafeListener('btnSettingsToggle', 'click', () => document.getElementById('settingsModal')?.classList.remove('hidden'));
     addSafeListener('btnCloseSettings', 'click', () => {
       document.getElementById('settingsModal')?.classList.add('hidden');
