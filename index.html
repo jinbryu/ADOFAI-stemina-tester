@@ -167,19 +167,12 @@
         <div class="relative w-full max-w-xl h-6 bg-slate-900 rounded-lg border border-white/10 overflow-hidden flex items-center" id="judgementBar">
           <!-- Background Zones -->
           <div class="absolute inset-y-0 left-0 w-full flex">
-            <!-- Out of bounds Left -->
             <div class="h-full bg-orange-500/10" style="width: 10%;"></div>
-            <!-- Early! Zone (-40 to -30) -->
             <div class="h-full bg-amber-500/15" style="width: 10%;"></div>
-            <!-- EPerfect Zone (-30 to -25) -->
             <div class="h-full bg-sky-500/20" style="width: 5%;"></div>
-            <!-- Perfect Zone (-25 to +25) -->
             <div class="h-full bg-emerald-500/25 border-x border-emerald-500/40" style="width: 50%;"></div>
-            <!-- LPerfect Zone (+25 to +30) -->
             <div class="h-full bg-sky-500/20" style="width: 5%;"></div>
-            <!-- Late! Zone (+30 to +40) -->
             <div class="h-full bg-amber-500/15" style="width: 10%;"></div>
-            <!-- Death Late!! Zone (>+40) -->
             <div class="h-full bg-rose-500/20" style="width: 10%;"></div>
           </div>
 
@@ -193,7 +186,7 @@
 
     </div>
 
-    <!-- Control Dashboard: BPM Slider & Mode Selector (Rock-Solid Fixed Widths) -->
+    <!-- Control Dashboard: BPM Slider & Mode Selector -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       
       <!-- Primary Action & Division Selector (4 Cols) -->
@@ -231,7 +224,6 @@
             <span class="text-[10px] text-slate-500 block">권장 범위: 160 ~ 400 BPM</span>
           </div>
 
-          <!-- Fixed-Width Number Display Boxes (Zero Layout Shift) -->
           <div class="flex items-center gap-2 shrink-0">
             <div class="w-[88px] shrink-0 text-right bg-slate-950 px-2.5 py-1 rounded-lg border border-white/10">
               <span id="bpmDisplay" class="font-mono font-black text-cyan-400 text-base tabular-nums">225</span>
@@ -259,7 +251,6 @@
           </div>
         </div>
 
-        <!-- Quick Summary Bar -->
         <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-400 font-mono">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -272,31 +263,31 @@
 
     </div>
 
-    <!-- Leaderboard / Ranking Section -->
+    <!-- Leaderboard / Ranking Section (Remote Server / GitHub Sync) -->
     <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur space-y-4">
       
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
         <div class="flex items-center gap-2">
           <span class="text-base">🏆</span>
           <h2 class="font-bold text-sm text-white">BPM별 스트림 유지시간 랭킹</h2>
-          <span class="text-[10px] text-slate-400">(로컬 저장 기록)</span>
+          <span class="text-[10px] text-cyan-400 font-semibold">(클라우드 연동 기록)</span>
         </div>
 
         <!-- Division Switcher & Search Bar -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
-          <!-- 8B vs 16B View Toggle -->
           <div class="flex rounded-xl bg-slate-950 p-1 border border-white/10 text-xs shrink-0">
             <button id="rankTab8B" type="button" class="py-1 px-2.5 rounded-lg text-slate-400 font-bold transition">8비트</button>
             <button id="rankTab16B" type="button" class="py-1 px-2.5 rounded-lg bg-yellow-500 text-slate-950 font-bold shadow transition">16비트</button>
           </div>
 
-          <!-- BPM Search Input -->
           <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-xl border border-white/10 w-full sm:w-40">
             <span class="text-xs text-slate-500">🔍</span>
             <input id="rankFilterBpm" type="number" placeholder="BPM 검색" 
               class="w-full bg-transparent border-none text-xs font-mono text-cyan-300 focus:outline-none placeholder-slate-600">
           </div>
-          <button id="btnRankClearFilter" type="button" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-xs font-semibold">초기화</button>
+          <button id="btnRefreshScores" type="button" class="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
+            <span>🔄</span> 새로고침
+          </button>
         </div>
       </div>
 
@@ -307,7 +298,7 @@
 
       <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-slate-500">
         <span id="rankThresholdHint">최소 64타일 이상 완주 시 랭킹 자동 등록</span>
-        <button id="btnClearScores" type="button" class="text-rose-400 hover:text-rose-300 underline font-semibold">기록 초기화</button>
+        <span class="text-slate-400 text-[10px]">💡 항목을 클릭하면 당시 플레이 상세 그래프를 확인합니다.</span>
       </div>
 
     </div>
@@ -330,14 +321,12 @@
           키보드 하드웨어 응답 지연이나 모니터 디스플레이 딜레이를 상쇄하기 위한 오프셋(ms)을 수동 설정합니다.
         </p>
 
-        <!-- Current Offset Value Display -->
         <div class="text-center p-3 rounded-xl bg-slate-950 border border-white/10">
           <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">현재 오프셋</div>
           <div id="calibValDisplay" class="text-3xl font-black font-mono text-cyan-400 my-1 tabular-nums">0 ms</div>
           <div class="text-[10px] text-slate-500">음수: 타격이 늦게 인식될 때 • 양수: 타격이 일찍 인식될 때</div>
         </div>
 
-        <!-- Slider Bar -->
         <div class="space-y-1">
           <input id="calibSlider" type="range" min="-150" max="150" step="1" value="0" 
             class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-white/10">
@@ -348,7 +337,6 @@
           </div>
         </div>
 
-        <!-- Micro-Adjustment Buttons -->
         <div class="grid grid-cols-5 gap-1.5 pt-1">
           <button id="btnCalibMinus5" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300">-5ms</button>
           <button id="btnCalibMinus1" type="button" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-300">-1ms</button>
@@ -377,7 +365,6 @@
 
       <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
         
-        <!-- Language Switch -->
         <div class="space-y-1.5">
           <label class="text-xs text-slate-300 font-semibold">언어 (Language)</label>
           <div class="flex gap-2">
@@ -386,9 +373,8 @@
           </div>
         </div>
 
-        <!-- Key Bindings -->
         <div class="space-y-2">
-          <label class="text-xs text-slate-300 font-semibold">조작 키 설정 (버튼 클릭 후 원하는 키 입력)</label>
+          <label class="text-xs text-slate-300 font-semibold">조작 키 설정</label>
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 text-center">
               <div class="text-[10px] text-slate-400 font-semibold mb-1">8비트 단일키</div>
@@ -411,7 +397,6 @@
           </div>
         </div>
 
-        <!-- Target Tiles Goal -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center text-xs">
             <label class="text-slate-300 font-semibold">목표 완주 타일 수 (Target Goal)</label>
@@ -427,7 +412,6 @@
           </div>
         </div>
 
-        <!-- Save Threshold -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center text-xs">
             <label class="text-slate-300 font-semibold">최소 기록 저장 타일 수</label>
@@ -466,12 +450,13 @@
         <button id="btnCloseAnalysis" type="button" class="text-slate-400 hover:text-white text-xl p-1">✕</button>
       </div>
 
-      <!-- Player Name Override Input -->
-      <div class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-white/10">
-        <span class="text-xs text-slate-400 shrink-0">플레이어 이름:</span>
-        <input id="analysisPlayerName" type="text" maxlength="15" 
-          class="bg-transparent border-none text-xs font-bold text-cyan-300 w-full focus:outline-none placeholder-slate-600">
-        <button id="btnApplyAnalysisName" type="button" class="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-lg shrink-0">이름 적용</button>
+      <!-- Player Name Banner -->
+      <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400">플레이어:</span>
+          <span id="analysisPlayerName" class="text-xs font-bold text-cyan-300">Player</span>
+        </div>
+        <div id="analysisDate" class="text-[11px] font-mono text-slate-500"></div>
       </div>
 
       <!-- Summary Badges -->
@@ -509,7 +494,7 @@
         </div>
       </div>
 
-      <!-- Detailed Judgement Counters (Separated as requested in Feedback 7 & 8) -->
+      <!-- Detailed Judgement Counters -->
       <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5 text-center font-mono">
         <div class="p-2 bg-slate-950 rounded-lg border border-emerald-500/20">
           <div class="text-[9px] text-emerald-400 font-bold">정확</div>
@@ -541,17 +526,19 @@
         </div>
       </div>
 
-      <!-- Prominent Confirm & Continue Button (Required in Feedback 5) -->
       <button id="btnConfirmContinue" type="button" 
         class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-sm tracking-wide shadow-xl shadow-cyan-500/20 transition active:scale-98">
-        확인 및 계속 (Confirm & Continue)
+        확인 및 닫기
       </button>
 
     </div>
   </div>
 
   <script>
-    // Internationalization dictionary
+    const WORKER_URL = "https://adofai-records.jinbryu.workers.dev/submit";
+    // records.json 은 저장소 루트에 배포됨 (캐시 우회 쿼리 포함)
+    const RECORDS_JSON_URL = "./records.json";
+
     const I18N = {
       ko: {
         appTitle: 'ADOFAI 체력단련실 Beta',
@@ -569,8 +556,7 @@
         overloadFail: '과부하 (너무빠름 3회 누적)',
         lateMissFail: '느림!! (박자 놓침)',
         userStop: '사용자 중단',
-        goalClear: '🎉 목표 타일 완주 성공!',
-        clearRankConfirm: '저장된 모든 랭킹 데이터를 초기화하시겠습니까?'
+        goalClear: '🎉 목표 타일 완주 성공!'
       },
       en: {
         appTitle: 'ADOFAI Stamina Lab Beta',
@@ -588,8 +574,7 @@
         overloadFail: 'Overload (3 Early!! on tile)',
         lateMissFail: 'Late!! (Missed timing)',
         userStop: 'Stopped by User',
-        goalClear: '🎉 Target Goal Cleared!',
-        clearRankConfirm: 'Clear all recorded score history?'
+        goalClear: '🎉 Target Goal Cleared!'
       }
     };
 
@@ -597,7 +582,7 @@
     let currentLang = 'ko';
     let username = 'Player';
     let baseBPM = 225;
-    let streamDivision = '16beat'; // '8beat' (base * 2) or '16beat' (base * 4)
+    let streamDivision = '16beat'; 
     let tileBPM = 900;
     let tileIntervalMs = (60 / tileBPM) * 1000;
 
@@ -607,8 +592,8 @@
     let rebindingTarget = null;
 
     let saveThreshold = 64;
-    let targetTilesGoal = 0; // 0 = endless
-    let calibrationOffset = 0; // ms
+    let targetTilesGoal = 0;
+    let calibrationOffset = 0;
 
     let isRunning = false;
     let isCountingDown = false;
@@ -617,6 +602,7 @@
 
     let currentTileIndex = 0;
     let runStartTime = 0;
+    let countdownStartTime = 0;
     let targetTileTime = 0;
     let nextIndependentBeatTime = 0;
     let currentStreakSeconds = 0;
@@ -624,10 +610,12 @@
 
     let activeEarlyCountOnTile = 0;
     let hitHistory = [];
+    let inputLogs = [];
     let recent16Hits = [];
     let earlyMarkerOrbits = [];
     let cometTrails = [];
-    let graphDisplayMode = 'deviation'; // 'deviation' or 'absolute'
+    let currentModalHistory = [];
+    let graphDisplayMode = 'deviation';
 
     let judgementCounts = {
       perfect: 0,
@@ -642,8 +630,8 @@
 
     let rankViewDivision = '16beat';
     let rankViewBpmFilter = null;
+    let remoteRecordsList = [];
 
-    // Camera & Track Physics
     const TILE_SPACING = 90;
     const PLANET_RADIUS = 16;
     let cameraX = 0;
@@ -651,48 +639,35 @@
 
     const sound = {
       ctx: null,
-
       init() {
         if (!this.ctx) {
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            this.ctx = new AudioContextClass();
-          }
+          if (AudioContextClass) this.ctx = new AudioContextClass();
         }
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
         }
       },
-
       playKick(time) {
         this.init();
         if (!this.ctx) return;
-
         const scheduledTime = time || this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-
         osc.type = 'sine';
         osc.frequency.setValueAtTime(160, scheduledTime);
         osc.frequency.exponentialRampToValueAtTime(32, scheduledTime + 0.07);
-
         gain.gain.setValueAtTime(0.9, scheduledTime);
         gain.gain.exponentialRampToValueAtTime(0.001, scheduledTime + 0.08);
-
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-
         osc.start(scheduledTime);
         osc.stop(scheduledTime + 0.09);
       },
-
       playFail() {
         this.init();
         if (!this.ctx) return;
-
         const t = this.ctx.currentTime;
-
-        // High glass shatter
         const osc1 = this.ctx.createOscillator();
         const gain1 = this.ctx.createGain();
         osc1.type = 'triangle';
@@ -705,7 +680,6 @@
         osc1.start(t);
         osc1.stop(t + 0.31);
 
-        // Low rumble crash
         const osc2 = this.ctx.createOscillator();
         const gain2 = this.ctx.createGain();
         osc2.type = 'sawtooth';
@@ -718,7 +692,6 @@
         osc2.start(t);
         osc2.stop(t + 0.5);
       },
-
       playTick(pitch = 880, time = null) {
         this.init();
         if (!this.ctx) return;
@@ -734,7 +707,6 @@
         osc.start(t);
         osc.stop(t + 0.05);
       },
-
       playClear() {
         this.init();
         if (!this.ctx) return;
@@ -756,9 +728,7 @@
 
     const addSafeListener = (idOrEl, event, handler, options) => {
       const el = typeof idOrEl === 'string' ? document.getElementById(idOrEl) : idOrEl;
-      if (el) {
-        el.addEventListener(event, handler, options);
-      }
+      if (el) el.addEventListener(event, handler, options);
     };
 
     const isAnyModalOpen = () => {
@@ -770,55 +740,47 @@
              (c && !c.classList.contains('hidden'));
     };
 
-    
-// 카운트다운 시작 시간 및 입력 로그 저장소
-let countdownStartTime = 0;
-let inputLogs = [];
-
-// 서버로 최종 전송하는 함수
-async function submitRecord(summaryData) {
-  const payload = {
-    username: prompt("플레이어 닉네임을 입력하세요:", "Anonymous") || "Anonymous",
-    timestamp: new Date().toISOString(),
-    settings: {
-      bpm: typeof bpm !== 'undefined' ? bpm : 220,
-    },
-    summary: summaryData,
-    inputs: inputLogs
-  };
-
-  try {
-    const res = await fetch("https://adofai-records.jinbryu.workers.dev/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      console.log("기록 저장 성공!");
-    } else {
-      console.warn("기록 저장 실패");
+    // Cloudflare Worker 로 점수 전송
+    async function submitRecord(recordPayload) {
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(recordPayload)
+        });
+        if (res.ok) {
+          console.log("기록이 서버에 커밋되었습니다.");
+          setTimeout(fetchRemoteRecords, 1500); // 갱신 반영 요청
+        }
+      } catch (err) {
+        console.warn("기록 전송 실패:", err);
+      }
     }
-  } catch (err) {
-    console.error("전송 에러:", err);
-  }
-}
+
+    // GitHub Pages에 업로드된 records.json 불러오기
+    async function fetchRemoteRecords() {
+      try {
+        const res = await fetch(`${RECORDS_JSON_URL}?t=${Date.now()}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          remoteRecordsList = data;
+          renderScoreBoard();
+        }
+      } catch (e) {
+        console.log("원격 기록 로드 실패 또는 파일 생성 전:", e);
+      }
+    }
+
     const setLanguage = (lang) => {
       currentLang = lang === 'en' ? 'en' : 'ko';
-      try {
-        localStorage.setItem('adofai_v2_lang', currentLang);
-      } catch (e) {}
+      try { localStorage.setItem('adofai_v2_lang', currentLang); } catch (e) {}
 
       const btnKo = document.getElementById('btnLangKo');
       const btnEn = document.getElementById('btnLangEn');
       if (btnKo && btnEn) {
-        if (currentLang === 'ko') {
-          btnKo.className = 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition';
-          btnEn.className = 'flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition';
-        } else {
-          btnEn.className = 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition';
-          btnKo.className = 'flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition';
-        }
+        btnKo.className = currentLang === 'ko' ? 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition' : 'flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition';
+        btnEn.className = currentLang === 'en' ? 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white font-bold text-xs shadow transition' : 'flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/5 transition';
       }
 
       const txtTitle = document.getElementById('siteTitleText');
@@ -895,9 +857,7 @@ async function submitRecord(summaryData) {
       if (v) v.innerText = saveThreshold;
       const rh = document.getElementById('rankThresholdHint');
       if (rh) rh.innerText = `최소 ${saveThreshold}타일 이상 완주 시 랭킹 자동 등록`;
-      try {
-        localStorage.setItem('adofai_v2_threshold', saveThreshold);
-      } catch (e) {}
+      try { localStorage.setItem('adofai_v2_threshold', saveThreshold); } catch (e) {}
     };
 
     const updateTargetTilesGoal = (val) => {
@@ -906,9 +866,7 @@ async function submitRecord(summaryData) {
       const v = document.getElementById('valTargetTiles');
       if (s) s.value = targetTilesGoal;
       if (v) v.innerText = targetTilesGoal === 0 ? '무제한 (Endless)' : `${targetTilesGoal} 타일`;
-      try {
-        localStorage.setItem('adofai_v2_target_tiles', targetTilesGoal);
-      } catch (e) {}
+      try { localStorage.setItem('adofai_v2_target_tiles', targetTilesGoal); } catch (e) {}
     };
 
     const setRankViewDivision = (div) => {
@@ -963,15 +921,15 @@ async function submitRecord(summaryData) {
           if (cDisplay) cDisplay.innerText = `${calibrationOffset > 0 ? '+' : ''}${calibrationOffset} ms`;
         }
       } catch (e) {
-        console.warn('LocalStorage access warning:', e);
+        console.warn('Settings load warning:', e);
       }
 
       setDivisionMode(streamDivision);
       updateKeysHUD();
-      renderScoreBoard();
+      fetchRemoteRecords();
     };
 
-    const getStoredScores = () => {
+    const getStoredLocalScores = () => {
       try {
         return JSON.parse(localStorage.getItem('adofai_v2_scores') || '[]');
       } catch (e) {
@@ -979,52 +937,82 @@ async function submitRecord(summaryData) {
       }
     };
 
-    const saveScoreRecord = (scoreData) => {
-      const list = getStoredScores();
-      list.push(scoreData);
-      try {
-        localStorage.setItem('adofai_v2_scores', JSON.stringify(list));
-      } catch (e) {}
-      renderScoreBoard();
-    };
-
+    // 로컬과 원격 JSON을 합쳐서 렌더링
     const renderScoreBoard = () => {
       const container = document.getElementById('scoreList');
       if (!container) return;
 
-      let list = getStoredScores();
-      list = list.filter(item => (item.division || '16beat') === rankViewDivision);
+      const localList = getStoredLocalScores();
+      let combined = [...remoteRecordsList, ...localList];
+
+      // 데이터 포맷 단일화
+      let normalized = combined.map((item, idx) => {
+        const baseBpm = item.baseBpm || item.settings?.bpm || 225;
+        const division = item.division || (item.settings?.division || '16beat');
+        const tileBpm = item.tileBpm || (baseBpm * (division === '8beat' ? 2 : 4));
+        const tiles = item.tiles || item.summary?.survivedTiles || 0;
+        const duration = item.duration || ((item.summary?.survivedTimeMs || 0) / 1000);
+        const accuracy = item.accuracy !== undefined ? item.accuracy : (item.summary?.accuracy || 0);
+
+        return {
+          id: item.id || `local_${idx}`,
+          username: item.username || 'Anonymous',
+          date: item.date || (item.timestamp ? item.timestamp.split('T')[0] : ''),
+          baseBpm,
+          tileBpm,
+          division,
+          tiles,
+          duration,
+          accuracy,
+          reason: item.reason || item.summary?.deathReason || '',
+          history: item.history || item.historyData || null,
+          inputs: item.inputs || null,
+          judgements: item.judgements || null
+        };
+      });
+
+      // 중복 ID 방지 및 필터링
+      const seen = new Set();
+      normalized = normalized.filter(item => {
+        const key = `${item.username}_${item.duration}_${item.tiles}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      normalized = normalized.filter(item => item.division === rankViewDivision);
 
       if (rankViewBpmFilter !== null && !isNaN(rankViewBpmFilter)) {
-        list = list.filter(item => item.baseBpm === rankViewBpmFilter || item.tileBpm === rankViewBpmFilter);
+        normalized = normalized.filter(item => item.baseBpm === rankViewBpmFilter || item.tileBpm === rankViewBpmFilter);
       }
 
-      list.sort((a, b) => (b.tiles || 0) - (a.tiles || 0) || (b.accuracy || 0) - (a.accuracy || 0));
+      normalized.sort((a, b) => (b.tiles || 0) - (a.tiles || 0) || (b.accuracy || 0) - (a.accuracy || 0));
 
-      if (list.length === 0) {
+      if (normalized.length === 0) {
         container.innerHTML = `
           <div class="p-6 text-center text-slate-500 text-xs">
-            기록된 랭킹 데이터가 없습니다. (최소 ${saveThreshold}타일 이상 완주 시 자동 저장)
+            등록된 랭킹 데이터가 없습니다. (최소 ${saveThreshold}타일 이상 완주 시 자동 저장)
           </div>
         `;
         return;
       }
 
-      container.innerHTML = list.slice(0, 50).map((row, idx) => {
+      container.innerHTML = normalized.slice(0, 50).map((row, idx) => {
         const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`;
         return `
-          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-white/5 hover:border-cyan-500/30 transition text-xs">
+          <div class="score-row flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-white/5 hover:border-cyan-500/40 hover:bg-slate-900/90 transition text-xs cursor-pointer"
+               data-idx="${idx}">
             <div class="flex items-center gap-3">
               <span class="w-6 font-bold text-center text-slate-400 font-mono">${medal}</span>
               <div>
                 <div class="font-bold text-white flex items-center gap-1.5">
-                  ${row.username || 'Player'}
+                  ${row.username}
                   <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400 font-mono border border-white/5">
                     ${row.baseBpm} BPM (${row.tileBpm}t)
                   </span>
                 </div>
                 <div class="text-[10px] text-slate-400 font-mono">
-                  ${row.date || ''} • ${row.reason || ''}
+                  ${row.date} • ${row.reason}
                 </div>
               </div>
             </div>
@@ -1033,12 +1021,23 @@ async function submitRecord(summaryData) {
                 ${(row.duration || 0).toFixed(3)}s
               </div>
               <div class="text-[10px] font-mono text-slate-400">
-                ${row.tiles || 0}타일 • <span class="text-yellow-400 font-semibold">${(row.accuracy || 0).toFixed(1)}%</span>
+                ${row.tiles}타일 • <span class="text-yellow-400 font-semibold">${(row.accuracy || 0).toFixed(1)}%</span>
               </div>
             </div>
           </div>
         `;
       }).join('');
+
+      // 랭킹 리스트 아이템 클릭 시 세부 분석 모달 오픈
+      container.querySelectorAll('.score-row').forEach(rowEl => {
+        rowEl.addEventListener('click', () => {
+          const idx = parseInt(rowEl.getAttribute('data-idx'), 10);
+          const selectedRecord = normalized[idx];
+          if (selectedRecord) {
+            openAnalysisModal(selectedRecord);
+          }
+        });
+      });
     };
 
     const computeAbsoluteAccuracy = () => {
@@ -1066,9 +1065,9 @@ async function submitRecord(summaryData) {
       const actText = document.getElementById('actionText');
       if (actText) actText.innerText = I18N[currentLang].stopBtn;
 
-      // 1 Beat = 4 stream tiles duration
       const quarterMs = tileIntervalMs * 4;
       const countSteps = ['3', '2', '1', I18N[currentLang].goCount];
+      countdownStartTime = performance.now();
 
       countSteps.forEach((step, idx) => {
         const timer = setTimeout(() => {
@@ -1107,6 +1106,7 @@ async function submitRecord(summaryData) {
 
       currentStreakSeconds = 0;
       hitHistory = [];
+      inputLogs = [];
       recent16Hits = [];
       earlyMarkerOrbits = [];
       cometTrails = [];
@@ -1158,16 +1158,16 @@ async function submitRecord(summaryData) {
       const totalAcc = computeAbsoluteAccuracy();
       const runDuration = currentStreakSeconds;
 
-      // Update Best Streak
       if (runDuration > bestStreakSeconds) {
         bestStreakSeconds = runDuration;
         const b = document.getElementById('bestStreak');
         if (b) b.innerText = `${bestStreakSeconds.toFixed(3)}s`;
       }
 
-      // Check Save Threshold
+      // 최소 기준 도달 시 로컬 보관 및 Cloudflare Worker 전송
       if (currentTileIndex >= saveThreshold || isClear) {
         const record = {
+          id: "rec_" + Date.now(),
           username: username || 'Player',
           date: new Date().toLocaleDateString(),
           baseBpm: baseBPM,
@@ -1177,9 +1177,37 @@ async function submitRecord(summaryData) {
           tiles: currentTileIndex,
           accuracy: totalAcc,
           reason: isClear ? I18N[currentLang].goalClear : reason,
-          history: hitHistory.slice(0, 600)
+          history: hitHistory.slice(0, 800),
+          judgements: { ...judgementCounts }
         };
-        saveScoreRecord(record);
+
+        // 로컬 브라우저 저장
+        const local = getStoredLocalScores();
+        local.push(record);
+        try { localStorage.setItem('adofai_v2_scores', JSON.stringify(local)); } catch (e) {}
+        renderScoreBoard();
+
+        // Cloudflare Worker 경유 GitHub 저장소 기록 전송
+        submitRecord({
+          username: record.username,
+          timestamp: new Date().toISOString(),
+          division: streamDivision,
+          settings: {
+            bpm: baseBPM,
+            division: streamDivision,
+            offsetMs: calibrationOffset
+          },
+          summary: {
+            survivedTiles: currentTileIndex,
+            survivedTimeMs: Math.round(runDuration * 1000),
+            accuracy: totalAcc,
+            deathReason: record.reason
+          },
+          judgements: { ...judgementCounts },
+          historyData: hitHistory.slice(0, 800),
+          inputs: inputLogs.slice(0, 800)
+        });
+
         openAnalysisModal(record);
       }
     };
@@ -1196,19 +1224,23 @@ async function submitRecord(summaryData) {
       const now = performance.now();
       const rawOffset = now - targetTileTime - calibrationOffset;
 
+      inputLogs.push({
+        t: Math.round(now - countdownStartTime),
+        key: keyName,
+        targetTile: currentTileIndex,
+        offset: Math.round(rawOffset)
+      });
+
       let judge = '';
       let judgeColor = '#22c55e';
       let advancesTile = false;
 
-      // 6th Feedback Official Judgement Windows
       if (rawOffset < -40.0) {
-        // 너무빠름 (Early!!) - Does NOT advance tile, leaves orbit X mark
         judge = I18N[currentLang].veryEarly;
         judgeColor = '#f97316';
         judgementCounts.veryEarly++;
         activeEarlyCountOnTile++;
 
-        // Spawn orbit X mark
         const pivotX = currentTileIndex * TILE_SPACING;
         const orbitAngle = Math.PI - Math.min(Math.PI, Math.max(0, ((targetTileTime - now) / tileIntervalMs) * Math.PI));
         earlyMarkerOrbits.push({
@@ -1218,14 +1250,12 @@ async function submitRecord(summaryData) {
           alpha: 1.0
         });
 
-        // Fail condition 2: 3 or more Early!! on the same tile -> Overload death
         if (activeEarlyCountOnTile >= 3) {
           judgementCounts.lateMiss++;
           stopRun(I18N[currentLang].overloadFail);
           return;
         }
       } else if (rawOffset > 40.0) {
-        // 느림!! (Late!!) - Fail condition 1: Immediate Death
         judge = I18N[currentLang].lateMiss;
         judgeColor = '#ef4444';
         judgementCounts.lateMiss++;
@@ -1252,7 +1282,6 @@ async function submitRecord(summaryData) {
         judgementCounts.lperfect++;
         advancesTile = true;
       } else {
-        // |rawOffset| <= 25.0ms: Perfect!
         judge = I18N[currentLang].perfect;
         judgeColor = '#22c55e';
         judgementCounts.perfect++;
@@ -1261,7 +1290,6 @@ async function submitRecord(summaryData) {
 
       judgementCounts.total++;
 
-      // Log hit
       hitHistory.push({
         tile: currentTileIndex,
         offset: rawOffset,
@@ -1273,7 +1301,6 @@ async function submitRecord(summaryData) {
       if (recent16Hits.length > 16) recent16Hits.shift();
       renderGhostJudgements();
 
-      // UI updates
       const banner = document.getElementById('judgementBanner');
       if (banner) {
         banner.innerText = judge;
@@ -1292,7 +1319,6 @@ async function submitRecord(summaryData) {
         const tileEl = document.getElementById('currentTileVal');
         if (tileEl) tileEl.innerText = `${currentTileIndex}`;
 
-        // Goal reached check
         if (targetTilesGoal > 0 && currentTileIndex >= targetTilesGoal) {
           stopRun(I18N[currentLang].goalClear, true);
         }
@@ -1305,9 +1331,7 @@ async function submitRecord(summaryData) {
       container.innerHTML = '';
 
       recent16Hits.forEach((hit, idx) => {
-        // Clamp offset to [-50, +50]ms
         const clamped = Math.max(-50, Math.min(50, hit.offset));
-        // Percent position across container: -50ms = 0%, 0ms = 50%, +50ms = 100%
         const pct = ((clamped + 50) / 100) * 100;
         const opacity = (idx + 1) / recent16Hits.length;
         const isLatest = idx === recent16Hits.length - 1;
@@ -1325,13 +1349,17 @@ async function submitRecord(summaryData) {
       });
     };
 
+    // 기록 상세 분석 모달 열기
     const openAnalysisModal = (record) => {
       const modal = document.getElementById('analysisModal');
       if (!modal) return;
       modal.classList.remove('hidden');
 
-      const nameInp = document.getElementById('analysisPlayerName');
-      if (nameInp) nameInp.value = record.username || username;
+      const nameEl = document.getElementById('analysisPlayerName');
+      if (nameEl) nameEl.innerText = record.username || 'Anonymous';
+
+      const dateEl = document.getElementById('analysisDate');
+      if (dateEl) dateEl.innerText = record.date || '';
 
       const durEl = document.getElementById('analysisDuration');
       if (durEl) durEl.innerText = `${(record.duration || 0).toFixed(3)}s`;
@@ -1343,25 +1371,30 @@ async function submitRecord(summaryData) {
       if (accEl) accEl.innerText = `${(record.accuracy || 0).toFixed(1)}%`;
 
       const bpmEl = document.getElementById('analysisBpm');
-      if (bpmEl) bpmEl.innerText = `${record.tileBpm} tBPM`;
+      if (bpmEl) bpmEl.innerText = `${record.tileBpm || (record.baseBpm * 4)} tBPM`;
 
-      const cPerf = document.getElementById('cntAnalysisPerfect');
-      const cEPerf = document.getElementById('cntAnalysisEPerfect');
-      const cLPerf = document.getElementById('cntAnalysisLPerfect');
-      const cEarly = document.getElementById('cntAnalysisEarly');
-      const cLate = document.getElementById('cntAnalysisLate');
-      const cVEarly = document.getElementById('cntAnalysisVEarly');
-      const cLateMiss = document.getElementById('cntAnalysisLateMiss');
+      // 기록에 판정 카운트가 있으면 그것을 사용, 없으면 현재 카운트 표시
+      const jc = record.judgements || judgementCounts;
+      document.getElementById('cntAnalysisPerfect').innerText = jc.perfect || 0;
+      document.getElementById('cntAnalysisEPerfect').innerText = jc.eperfect || 0;
+      document.getElementById('cntAnalysisLPerfect').innerText = jc.lperfect || 0;
+      document.getElementById('cntAnalysisEarly').innerText = jc.early || 0;
+      document.getElementById('cntAnalysisLate').innerText = jc.late || 0;
+      document.getElementById('cntAnalysisVEarly').innerText = jc.veryEarly || 0;
+      document.getElementById('cntAnalysisLateMiss').innerText = jc.lateMiss || 0;
 
-      if (cPerf) cPerf.innerText = judgementCounts.perfect;
-      if (cEPerf) cEPerf.innerText = judgementCounts.eperfect;
-      if (cLPerf) cLPerf.innerText = judgementCounts.lperfect;
-      if (cEarly) cEarly.innerText = judgementCounts.early;
-      if (cLate) cLate.innerText = judgementCounts.late;
-      if (cVEarly) cVEarly.innerText = judgementCounts.veryEarly;
-      if (cLateMiss) cLateMiss.innerText = judgementCounts.lateMiss;
+      // history 데이터가 inputs 원본 로그 형태일 경우 자동 변환
+      let historyData = record.history;
+      if (!historyData && record.inputs) {
+        historyData = record.inputs.map(inp => ({
+          tile: inp.targetTile || 0,
+          offset: inp.offset !== undefined ? inp.offset : 0,
+          color: Math.abs(inp.offset || 0) <= 25 ? '#22c55e' : '#fb923c'
+        }));
+      }
 
-      renderAnalysisGraph(record.history || hitHistory, graphDisplayMode);
+      currentModalHistory = historyData || hitHistory;
+      renderAnalysisGraph(currentModalHistory, graphDisplayMode);
     };
 
     const renderAnalysisGraph = (historyData, mode) => {
@@ -1386,7 +1419,7 @@ async function submitRecord(summaryData) {
       const plotW = w - padding.left - padding.right;
       const plotH = h - padding.top - padding.bottom;
 
-      const maxTile = Math.max(1, historyData[historyData.length - 1].tile);
+      const maxTile = Math.max(1, historyData[historyData.length - 1].tile || 1);
       const yMax = mode === 'absolute' ? 50 : 50;
       const yMin = mode === 'absolute' ? 0 : -50;
 
@@ -1395,14 +1428,12 @@ async function submitRecord(summaryData) {
       ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 1;
 
-      // Zero baseline
       const zeroY = getY(0);
       ctx.beginPath();
       ctx.moveTo(padding.left, zeroY);
       ctx.lineTo(w - padding.right, zeroY);
       ctx.stroke();
 
-      // Guide lines (±25ms, ±40ms)
       [25, -25, 40, -40].forEach((guide) => {
         if (mode === 'absolute' && guide < 0) return;
         const gy = getY(guide);
@@ -1420,24 +1451,22 @@ async function submitRecord(summaryData) {
         ctx.fillText(`${guide > 0 ? '+' : ''}${guide}ms`, padding.left - 6, gy + 3);
       });
 
-      // Plot line
       ctx.beginPath();
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 1.5;
 
       historyData.forEach((pt, i) => {
         const val = mode === 'absolute' ? Math.abs(pt.offset) : pt.offset;
-        const x = padding.left + (pt.tile / maxTile) * plotW;
+        const x = padding.left + ((pt.tile || 0) / maxTile) * plotW;
         const y = getY(Math.max(yMin, Math.min(yMax, val)));
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
       ctx.stroke();
 
-      // Plot points
       historyData.forEach((pt) => {
         const val = mode === 'absolute' ? Math.abs(pt.offset) : pt.offset;
-        const x = padding.left + (pt.tile / maxTile) * plotW;
+        const x = padding.left + ((pt.tile || 0) / maxTile) * plotW;
         const y = getY(Math.max(yMin, Math.min(yMax, val)));
 
         ctx.fillStyle = pt.color || '#38bdf8';
@@ -1446,7 +1475,6 @@ async function submitRecord(summaryData) {
         ctx.fill();
       });
 
-      // Axis labels
       ctx.fillStyle = '#94a3b8';
       ctx.font = '10px Inter, sans-serif';
       ctx.textAlign = 'center';
@@ -1469,13 +1497,11 @@ async function submitRecord(summaryData) {
       const startTile = Math.max(0, Math.floor((cameraX - width / 2) / TILE_SPACING) - 2);
       const endTile = startTile + Math.ceil(width / TILE_SPACING) + 5;
 
-      // Draw straight 180° track tiles
       for (let i = startTile; i <= endTile; i++) {
         const tx = (width / 2) + (i * TILE_SPACING) - cameraX;
         const isCurrent = i === currentTileIndex;
         const isPassed = i < currentTileIndex;
 
-        // Tile base circle
         ctx.beginPath();
         ctx.arc(tx, centerY, 24, 0, Math.PI * 2);
         if (isCurrent) {
@@ -1496,20 +1522,17 @@ async function submitRecord(summaryData) {
         }
         ctx.stroke();
 
-        // Inner center pip
         ctx.beginPath();
         ctx.arc(tx, centerY, 4, 0, Math.PI * 2);
         ctx.fillStyle = isCurrent ? '#fde047' : isPassed ? '#38bdf8' : '#64748b';
         ctx.fill();
 
-        // Tile number
         ctx.fillStyle = isCurrent ? '#fef08a' : '#64748b';
         ctx.font = '10px monospace';
         ctx.textAlign = 'center';
         ctx.fillText(`${i + 1}`, tx, centerY + 38);
       }
 
-      // Draw early X markers on orbits
       earlyMarkerOrbits.forEach((marker) => {
         const mx = (width / 2) + marker.x - cameraX;
         const my = centerY - marker.y;
@@ -1520,7 +1543,6 @@ async function submitRecord(summaryData) {
         ctx.arc(mx, my, PLANET_RADIUS * 0.7, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Draw X inside
         const d = (PLANET_RADIUS * 0.7) * 0.6;
         ctx.beginPath();
         ctx.moveTo(mx - d, my - d);
@@ -1540,7 +1562,6 @@ async function submitRecord(summaryData) {
       let orbitAngle = 0;
 
       if (isCountingDown) {
-        // Continuous smooth rotation preview during countdown
         const quarterMs = tileIntervalMs * 4;
         const progress = (now % quarterMs) / quarterMs;
         orbitAngle = progress * Math.PI * 2;
@@ -1554,7 +1575,6 @@ async function submitRecord(summaryData) {
       const orbitingX = pivotX + Math.cos(orbitAngle) * TILE_SPACING;
       const orbitingY = pivotY - Math.sin(orbitAngle) * TILE_SPACING;
 
-      // Smooth continuous trail
       if (isRunning) {
         cometTrails.push({ x: orbitingX, y: orbitingY, time: now });
         if (cometTrails.length > 20) cometTrails.shift();
@@ -1568,7 +1588,6 @@ async function submitRecord(summaryData) {
         });
       }
 
-      // Draw Pivoting Planet (Stationary on tile)
       ctx.beginPath();
       ctx.arc(pivotX, pivotY, PLANET_RADIUS, 0, Math.PI * 2);
       ctx.fillStyle = isFirePivoting ? '#ef4444' : '#38bdf8';
@@ -1577,7 +1596,6 @@ async function submitRecord(summaryData) {
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Draw Orbiting Planet
       ctx.beginPath();
       ctx.arc(orbitingX, orbitingY, PLANET_RADIUS, 0, Math.PI * 2);
       ctx.fillStyle = isFirePivoting ? '#38bdf8' : '#ef4444';
@@ -1599,29 +1617,23 @@ async function submitRecord(summaryData) {
         ctx.scale(dpr, dpr);
         ctx.clearRect(0, 0, w, h);
 
-        // Smooth camera lerp
         cameraX += (targetCameraX - cameraX) * 0.15;
-
-        // Render scene
         renderTrack(ctx, dpr, w, h);
         renderPlanets(ctx, dpr, w, h, now);
 
         ctx.restore();
       }
 
-      // Active run checks
       if (isRunning) {
         currentStreakSeconds = (now - runStartTime) / 1000;
         const streakEl = document.getElementById('streakTimer');
         if (streakEl) streakEl.innerText = `${currentStreakSeconds.toFixed(3)}s`;
 
-        // Independent Target Hitsound Scheduler
         if (now >= nextIndependentBeatTime) {
           sound.playKick();
           nextIndependentBeatTime += tileIntervalMs;
         }
 
-        // Late miss threshold check (> +40ms overdue without tap)
         if (now - targetTileTime - calibrationOffset > 40.0) {
           judgementCounts.lateMiss++;
           stopRun(I18N[currentLang].lateMissFail);
@@ -1633,18 +1645,11 @@ async function submitRecord(summaryData) {
 
     addSafeListener('inputUsername', 'input', (e) => {
       username = e.target.value.trim() || 'Player';
-      try {
-        localStorage.setItem('adofai_v2_user', username);
-      } catch (err) {}
+      try { localStorage.setItem('adofai_v2_user', username); } catch (err) {}
     });
 
-    addSafeListener('sliderSaveThreshold', 'input', (e) => {
-      updateThreshold(e.target.value);
-    });
-
-    addSafeListener('sliderTargetTiles', 'input', (e) => {
-      updateTargetTilesGoal(e.target.value);
-    });
+    addSafeListener('sliderSaveThreshold', 'input', (e) => updateThreshold(e.target.value));
+    addSafeListener('sliderTargetTiles', 'input', (e) => updateTargetTilesGoal(e.target.value));
 
     addSafeListener('rankTab8B', 'click', () => setRankViewDivision('8beat'));
     addSafeListener('rankTab16B', 'click', () => setRankViewDivision('16beat'));
@@ -1655,17 +1660,14 @@ async function submitRecord(summaryData) {
       renderScoreBoard();
     });
 
-    addSafeListener('btnRankClearFilter', 'click', () => {
-      const inp = document.getElementById('rankFilterBpm');
-      if (inp) inp.value = '';
-      rankViewBpmFilter = null;
-      renderScoreBoard();
+    addSafeListener('btnRefreshScores', 'click', () => {
+      fetchRemoteRecords();
     });
 
     addSafeListener('btnLangKo', 'click', () => setLanguage('ko'));
     addSafeListener('btnLangEn', 'click', () => setLanguage('en'));
 
-    // Keybindings & Gameplay input
+    // Input Controller
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') e.preventDefault();
 
@@ -1706,7 +1708,6 @@ async function submitRecord(summaryData) {
       }
     });
 
-    // Canvas click & touch triggers
     const canvasContainerEl = document.getElementById('canvasContainer');
     if (canvasContainerEl) {
       canvasContainerEl.addEventListener('touchstart', (e) => {
@@ -1734,27 +1735,17 @@ async function submitRecord(summaryData) {
     addSafeListener('tab16Beat', 'click', () => setDivisionMode('16beat'));
     addSafeListener('bpmSlider', 'input', (e) => updateBaseBPM(e.target.value));
 
-    // Modals open/close
-    addSafeListener('btnSettingsToggle', 'click', () => {
-      document.getElementById('settingsModal')?.classList.remove('hidden');
-    });
+    // Modals
+    addSafeListener('btnSettingsToggle', 'click', () => document.getElementById('settingsModal')?.classList.remove('hidden'));
     addSafeListener('btnCloseSettings', 'click', () => {
       document.getElementById('settingsModal')?.classList.add('hidden');
       rebindingTarget = null;
     });
-    addSafeListener('btnSaveSettings', 'click', () => {
-      document.getElementById('settingsModal')?.classList.add('hidden');
-    });
+    addSafeListener('btnSaveSettings', 'click', () => document.getElementById('settingsModal')?.classList.add('hidden'));
 
-    addSafeListener('btnCalibrateToggle', 'click', () => {
-      document.getElementById('calibrationModal')?.classList.remove('hidden');
-    });
-    addSafeListener('btnCloseCalib', 'click', () => {
-      document.getElementById('calibrationModal')?.classList.add('hidden');
-    });
-    addSafeListener('btnSaveCalib', 'click', () => {
-      document.getElementById('calibrationModal')?.classList.add('hidden');
-    });
+    addSafeListener('btnCalibrateToggle', 'click', () => document.getElementById('calibrationModal')?.classList.remove('hidden'));
+    addSafeListener('btnCloseCalib', 'click', () => document.getElementById('calibrationModal')?.classList.add('hidden'));
+    addSafeListener('btnSaveCalib', 'click', () => document.getElementById('calibrationModal')?.classList.add('hidden'));
 
     addSafeListener('calibSlider', 'input', (e) => {
       calibrationOffset = parseInt(e.target.value, 10) || 0;
@@ -1781,7 +1772,6 @@ async function submitRecord(summaryData) {
       adjustCalib(0);
     });
 
-    // Key rebinding triggers
     addSafeListener('btnBindKey8B', 'click', () => {
       rebindingTarget = '8b';
       document.getElementById('btnBindKey8B')?.classList.add('ring-2', 'ring-cyan-400');
@@ -1801,55 +1791,24 @@ async function submitRecord(summaryData) {
       document.getElementById('btnBindKey1')?.classList.remove('ring-2', 'ring-cyan-400');
     });
 
-    // Analysis modal controls
-    addSafeListener('btnCloseAnalysis', 'click', () => {
-      document.getElementById('analysisModal')?.classList.add('hidden');
-    });
-    addSafeListener('btnConfirmContinue', 'click', () => {
-      document.getElementById('analysisModal')?.classList.add('hidden');
-    });
-
-    addSafeListener('btnApplyAnalysisName', 'click', () => {
-      const inp = document.getElementById('analysisPlayerName');
-      if (inp && inp.value.trim()) {
-        username = inp.value.trim();
-        const mainInp = document.getElementById('inputUsername');
-        if (mainInp) mainInp.value = username;
-        try { localStorage.setItem('adofai_v2_user', username); } catch (e) {}
-      }
-    });
+    addSafeListener('btnCloseAnalysis', 'click', () => document.getElementById('analysisModal')?.classList.add('hidden'));
+    addSafeListener('btnConfirmContinue', 'click', () => document.getElementById('analysisModal')?.classList.add('hidden'));
 
     addSafeListener('btnGraphRaw', 'click', () => {
       graphDisplayMode = 'deviation';
-      const bRaw = document.getElementById('btnGraphRaw');
-      const bAbs = document.getElementById('btnGraphAbs');
-      if (bRaw) bRaw.className = 'px-2 py-0.5 rounded bg-cyan-600 text-white font-bold';
-      if (bAbs) bAbs.className = 'px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white';
-      renderAnalysisGraph(hitHistory, graphDisplayMode);
+      document.getElementById('btnGraphRaw').className = 'px-2 py-0.5 rounded bg-cyan-600 text-white font-bold';
+      document.getElementById('btnGraphAbs').className = 'px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white';
+      renderAnalysisGraph(currentModalHistory, graphDisplayMode);
     });
 
     addSafeListener('btnGraphAbs', 'click', () => {
       graphDisplayMode = 'absolute';
-      const bRaw = document.getElementById('btnGraphRaw');
-      const bAbs = document.getElementById('btnGraphAbs');
-      if (bAbs) bAbs.className = 'px-2 py-0.5 rounded bg-cyan-600 text-white font-bold';
-      if (bRaw) bRaw.className = 'px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white';
-      renderAnalysisGraph(hitHistory, graphDisplayMode);
+      document.getElementById('btnGraphAbs').className = 'px-2 py-0.5 rounded bg-cyan-600 text-white font-bold';
+      document.getElementById('btnGraphRaw').className = 'px-2 py-0.5 rounded text-slate-400 font-bold hover:text-white';
+      renderAnalysisGraph(currentModalHistory, graphDisplayMode);
     });
 
-    addSafeListener('btnClearScores', 'click', () => {
-      try {
-        localStorage.removeItem('adofai_v2_scores');
-      } catch (e) {}
-      renderScoreBoard();
-      const b = document.getElementById('bestStreak');
-      if (b) b.innerText = '0.000s';
-    });
-
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-    });
-
+    window.addEventListener('resize', resizeCanvas);
     window.addEventListener('load', () => {
       loadSavedSettings();
       resizeCanvas();
